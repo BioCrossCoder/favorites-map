@@ -1,33 +1,45 @@
-import { useState } from 'react';
-import reactLogo from '@/assets/react.svg';
-import wxtLogo from '/wxt.svg';
-import './App.css';
+import { useState } from "react";
+import {
+  Action,
+  Node,
+  OperationMessage,
+  SearchResultMessage,
+} from "@/interface";
 
 function App() {
-  const [count, setCount] = useState(0);
-
+  const [keyword, setKeyword] = useState("");
+  const [data, setData] = useState(new Array<Node>());
+  useEffect(() => {
+    search(keyword);
+  }, []);
+  function search(keyword: string) {
+    const message: OperationMessage = {
+      action: Action.Search,
+      data: keyword,
+    };
+    browser.runtime
+      .sendMessage(message)
+      .then((response: SearchResultMessage) => {
+        setData(response.result);
+      });
+  }
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setKeyword(event.target.value);
+    search(event.target.value);
+  }
   return (
     <>
+      <input
+        type="text"
+        placeholder="Search favorites map"
+        value={keyword}
+        onChange={handleChange}
+      />
       <div>
-        <a href="https://wxt.dev" target="_blank">
-          <img src={wxtLogo} className="logo" alt="WXT logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {Array.from(data).map((node: Node) => {
+          return <li>{node.name}</li>;
+        })}
       </div>
-      <h1>WXT + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the WXT and React logos to learn more
-      </p>
     </>
   );
 }

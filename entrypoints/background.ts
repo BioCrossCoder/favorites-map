@@ -1,13 +1,13 @@
-import { Node, IndexNode, DataNode, Action, OperationMessage, SearchResultMessage } from "../interface";
+import { Node, IndexNode, DataNode, Action, OperationMessage, SearchResultMessage } from "@/interface";
 
 type GraphData = {
-  dataNodes: Map<string, DataNode>;
-  nodes: Map<string, Node>;
+  dataNodes: Record<string, DataNode>;
+  nodes: Record<string, Node>;
 };
 const storageKey: `local:${string}` = 'local:favorites_map';
 let data: GraphData = {
-  dataNodes: new Map<string, DataNode>(),
-  nodes: new Map<string, Node>(),
+  dataNodes: {},
+  nodes: {},
 }
 
 class GraphStorage {
@@ -47,39 +47,39 @@ class Graph {
     } // [/]
     // [RemoveInvalidRelations]
     for (const name of oldNode.relatedNodeNames.difference(newNode.relatedNodeNames)) {
-      const relatedNode: Node | undefined = data.nodes.get(name);
+      const relatedNode: Node | undefined = data.nodes[name];
       if (relatedNode) {
         relatedNode.relatedNodeNames.delete(oldNode.name);
       }
     } // [/]
     // [AddNewRelations]
     for (const name of newNode.relatedNodeNames.difference(oldNode.relatedNodeNames)) {
-      const relatedNode: Node | undefined = data.nodes.get(name);
+      const relatedNode: Node | undefined = data.nodes[name];
       if (relatedNode) {
         relatedNode.relatedNodeNames.add(newNode.name);
       }
     } // [/]
   }
   public upsert(node: Node): void {
-    const currentNode: Node | undefined = data.nodes.get(node.name);
+    const currentNode: Node | undefined = data.nodes[node.name];
     if (currentNode) {
       this.updateRelations(currentNode, node);
     }
-    data.nodes.set(node.name, node);
+    data.nodes[node.name] = node;
     if (node instanceof DataNode) {
-      data.dataNodes.set(node.url, node);
+      data.dataNodes[node.url] = node;
     }
     GraphStorage.dump();
   }
   public delete(name: string): void {
-    const node: Node | undefined = data.nodes.get(name);
+    const node: Node | undefined = data.nodes[name];
     if (!node) {
       return
     }
     this.updateRelations(node, new Node(node.name, new Set<string>()));
-    data.nodes.delete(node.name);
+    delete data.nodes[node.name];
     if (node instanceof DataNode) {
-      data.dataNodes.delete(node.url);
+      delete data.dataNodes[node.url];
     }
     GraphStorage.dump();
   }
@@ -90,7 +90,7 @@ class Graph {
     }
     const indexNodes = new Set<IndexNode>();
     // [SearchByName]
-    for (const [name, node] of data.nodes) {
+    for (const [name, node] of Object.entries(data.nodes)) {
       if (!keyword || name.includes(keyword)) {
         if (node instanceof DataNode) {
           result.add(node);
@@ -100,7 +100,7 @@ class Graph {
       }
     } // [/]
     // [SearchByURL]
-    for (const [url, node] of data.dataNodes) {
+    for (const [url, node] of Object.entries(data.dataNodes)) {
       if (!keyword || url.toLowerCase().includes(keyword.toLowerCase())) {
         result.add(node);
       }
@@ -120,8 +120,8 @@ export default defineBackground(() => {
         Graph.instance.delete(message.data);
         break;
       case Action.Search:
-        const result: Set<Node> = Graph.instance.search(message.data);
-        sendResponse({ result })
+        const nodes: Set<Node> = Graph.instance.search(message.data);
+        sendResponse({ result: Array.from(nodes) })
         break;
     }
   })

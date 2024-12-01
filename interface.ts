@@ -41,5 +41,5 @@ export type SearchMessage = {
 export type OperationMessage = UpsertMessage | DeleteMessage | SearchMessage;
 
 export type SearchResultMessage = {
-    result: Set<Node>;
+    result: Array<Node>;
 }
