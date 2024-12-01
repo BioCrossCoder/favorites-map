@@ -5,7 +5,7 @@ export default defineConfig({
   extensionApi: 'chrome',
   modules: ['@wxt-dev/module-react'],
   manifest: {
-    permissions: ['storage', 'tabs'],
+    permissions: ['storage', 'tabs', 'sidePanel'],
     default_locale: 'en',
     name: '__MSG_extName__',
     description: '__MSG_extDescription__',
