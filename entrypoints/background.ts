@@ -1,40 +1,32 @@
 import { Action, NodeData, OperationMessage, SearchResultMessage } from "@/interface";
 
 class Node {
-  public name: string;
-  public relatedNodeNames: Set<string>;
-  public constructor(name: string, relatedNodes: Set<string>) {
-    this.name = name;
-    this.relatedNodeNames = relatedNodes;
-  }
-};
-
-class IndexNode extends Node { }
-
-class DataNode extends Node {
   public url: string;
+  public name: string;
+  public relatedNodeURLs: Set<string>;
   public constructor(name: string, url: string, relatedNodes: Set<string>) {
-    super(name, relatedNodes);
+    this.name = name;
+    this.relatedNodeURLs = relatedNodes;
     this.url = url;
   }
 }
 
-type GraphData = {
-  dataNodes: Record<string, DataNode>;
-  nodes: Record<string, Node>;
-};
+type GraphData = Record<string, Node>;
 const storageKey: `local:${string}` = 'local:favorites_map';
-let data: GraphData = {
-  dataNodes: {},
-  nodes: {},
-}
+let data: GraphData = {};
 
 class GraphStorage {
   public static async load(): Promise<void> {
-    data = await storage.getMeta<GraphData>(storageKey);
+    (await storage.getItem(storageKey) as NodeData[]).forEach(node => {
+      data[node.url] = new Node(node.name, node.url, new Set(node.relatedNodeNames));
+    });
   }
   public static async dump(): Promise<void> {
-    await storage.setMeta(storageKey, data);
+    await storage.setItem(storageKey, Object.values(data).map(node => ({
+      name: node.name,
+      url: node.url,
+      relatedNodeURLs: node.relatedNodeURLs,
+    })));
   }
   private static _monitor() {
     storage.watch(storageKey, GraphStorage.load);
@@ -65,41 +57,33 @@ class Graph {
       return
     } // [/]
     // [RemoveInvalidRelations]
-    for (const name of oldNode.relatedNodeNames.difference(newNode.relatedNodeNames)) {
-      const relatedNode: Node | undefined = data.nodes[name];
+    for (const url of oldNode.relatedNodeURLs.difference(newNode.relatedNodeURLs)) {
+      const relatedNode: Node | undefined = data[url];
       if (relatedNode) {
-        relatedNode.relatedNodeNames.delete(oldNode.name);
+        relatedNode.relatedNodeURLs.delete(oldNode.url);
       }
     } // [/]
     // [AddNewRelations]
-    for (const name of newNode.relatedNodeNames.difference(oldNode.relatedNodeNames)) {
-      const relatedNode: Node | undefined = data.nodes[name];
+    for (const url of newNode.relatedNodeURLs.difference(oldNode.relatedNodeURLs)) {
+      const relatedNode: Node | undefined = data[url];
       if (relatedNode) {
-        relatedNode.relatedNodeNames.add(newNode.name);
+        relatedNode.relatedNodeURLs.add(newNode.url);
       }
     } // [/]
   }
   public upsert(node: Node): void {
-    const currentNode: Node | undefined = data.nodes[node.name];
-    if (currentNode) {
-      this.updateRelations(currentNode, node);
-    }
-    data.nodes[node.name] = node;
-    if (node instanceof DataNode) {
-      data.dataNodes[node.url] = node;
-    }
+    const currentNode: Node = data[node.url] || new Node(node.name, node.url, new Set());
+    this.updateRelations(currentNode, node);
+    data[node.url] = node;
     GraphStorage.dump();
   }
-  public delete(name: string): void {
-    const node: Node | undefined = data.nodes[name];
+  public delete(url: string): void {
+    const node: Node | undefined = data[url];
     if (!node) {
       return
     }
-    this.updateRelations(node, new Node(node.name, new Set<string>()));
-    delete data.nodes[node.name];
-    if (node instanceof DataNode) {
-      delete data.dataNodes[node.url];
-    }
+    this.updateRelations(node, new Node(node.name, node.url, new Set<string>()));
+    delete data[node.url];
     GraphStorage.dump();
   }
   public search(keyword: string): Set<Node> {
@@ -107,24 +91,12 @@ class Graph {
     if (!data) {
       return result;
     }
-    const indexNodes = new Set<IndexNode>();
-    // [SearchByName]
-    for (const [name, node] of Object.entries(data.nodes)) {
-      if (!keyword || name.includes(keyword)) {
-        if (node instanceof DataNode) {
-          result.add(node);
-        } else {
-          indexNodes.add(node);
-        }
-      }
-    } // [/]
-    // [SearchByURL]
-    for (const [url, node] of Object.entries(data.dataNodes)) {
-      if (!keyword || url.toLowerCase().includes(keyword.toLowerCase())) {
+    for (const node of Object.values(data)) {
+      if (!keyword || node.url.includes(keyword) || node.name.includes(keyword)) {
         result.add(node);
       }
     } // [/]
-    return result.union(indexNodes);
+    return result;
   }
 }
 
@@ -133,7 +105,7 @@ export default defineBackground(() => {
   browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResultMessage) => void) => {
     switch (message.action) {
       case Action.Upsert:
-        const node = new Node(message.data.name, new Set(message.data.relatedNodeNames));
+        const node = new Node(message.data.name, message.data.url, new Set(message.data.relatedNodeNames));
         Graph.instance.upsert(node);
         break;
       case Action.Delete:
@@ -143,7 +115,8 @@ export default defineBackground(() => {
         const nodes: Set<Node> = Graph.instance.search(message.data);
         const result: NodeData[] = Array.from(nodes).map(node => ({
           name: node.name,
-          relatedNodeNames: Array.from(node.relatedNodeNames)
+          url: node.url,
+          relatedNodeNames: Array.from(node.relatedNodeURLs)
         }));
         sendResponse({ result });
         break;

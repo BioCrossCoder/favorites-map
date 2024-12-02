@@ -8,6 +8,7 @@ import {
 import { useState } from "react";
 function App() {
   const [title, setTitle] = useState("");
+  const [url, setURL] = useState("");
   useEffect(() => {
     browser.tabs
       .query({
@@ -16,6 +17,7 @@ function App() {
       })
       .then((tabs) => {
         setTitle(tabs[0].title as string);
+        setURL(tabs[0].url as string);
       })
       .then(() => fetchSelectOptions(""));
   }, []);
@@ -43,17 +45,18 @@ function App() {
       action: Action.Upsert,
       data: {
         name: title,
-        relatedNodeNames: [option],
+        url: url,
+        relatedNodeNames: [],
       },
     };
     browser.runtime.sendMessage(message).then(() => {
-      window.close();
+      // window.close();
     });
   }
   function handleClickDelete() {
     const message: DeleteMessage = {
       action: Action.Delete,
-      data: title,
+      data: url,
     };
     browser.runtime.sendMessage(message);
     window.close();

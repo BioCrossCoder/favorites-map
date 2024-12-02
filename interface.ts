@@ -1,5 +1,6 @@
 export interface NodeData {
     name: string;
+    url: string;
     relatedNodeNames: string[];
 }
 
