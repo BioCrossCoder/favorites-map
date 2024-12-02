@@ -1,5 +1,6 @@
 import {
   Action,
+  DeleteMessage,
   SearchMessage,
   SearchResultMessage,
   UpsertMessage,
@@ -37,7 +38,7 @@ function App() {
   function handleSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setOption(event.target.value);
   }
-  function handleClickOK() {
+  function handleClickSave() {
     const message: UpsertMessage = {
       action: Action.Upsert,
       data: {
@@ -49,7 +50,12 @@ function App() {
       window.close();
     });
   }
-  function handleClickCancel() {
+  function handleClickDelete() {
+    const message: DeleteMessage = {
+      action: Action.Delete,
+      data: title,
+    };
+    browser.runtime.sendMessage(message);
     window.close();
   }
   return (
@@ -62,8 +68,8 @@ function App() {
           </option>
         ))}
       </select>
-      <button onClick={handleClickOK}>OK</button>
-      <button onClick={handleClickCancel}>Cancel</button>
+      <button onClick={handleClickSave}>Save</button>
+      <button onClick={handleClickDelete}>Delete</button>
     </>
   );
 }
