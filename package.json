@@ -15,9 +15,13 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "@emotion/css": "^11.13.5",
+    "@emotion/react": "^11.13.5",
+    "@emotion/styled": "^11.13.5",
     "@wxt-dev/i18n": "^0.2.3",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "vis-network": "^9.1.9"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.280",

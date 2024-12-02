@@ -1,4 +1,23 @@
-import { Node, IndexNode, DataNode, Action, OperationMessage, SearchResultMessage } from "@/interface";
+import { Action, NodeData, OperationMessage, SearchResultMessage } from "@/interface";
+
+class Node {
+  public name: string;
+  public relatedNodeNames: Set<string>;
+  public constructor(name: string, relatedNodes: Set<string>) {
+    this.name = name;
+    this.relatedNodeNames = relatedNodes;
+  }
+};
+
+class IndexNode extends Node { }
+
+class DataNode extends Node {
+  public url: string;
+  public constructor(name: string, url: string, relatedNodes: Set<string>) {
+    super(name, relatedNodes);
+    this.url = url;
+  }
+}
 
 type GraphData = {
   dataNodes: Record<string, DataNode>;
@@ -114,14 +133,19 @@ export default defineBackground(() => {
   browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResultMessage) => void) => {
     switch (message.action) {
       case Action.Upsert:
-        Graph.instance.upsert(message.data);
+        const node = new Node(message.data.name, new Set(message.data.relatedNodeNames));
+        Graph.instance.upsert(node);
         break;
       case Action.Delete:
         Graph.instance.delete(message.data);
         break;
       case Action.Search:
         const nodes: Set<Node> = Graph.instance.search(message.data);
-        sendResponse({ result: Array.from(nodes) })
+        const result: NodeData[] = Array.from(nodes).map(node => ({
+          name: node.name,
+          relatedNodeNames: Array.from(node.relatedNodeNames)
+        }));
+        sendResponse({ result });
         break;
     }
   })

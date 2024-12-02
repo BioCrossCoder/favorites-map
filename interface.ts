@@ -1,20 +1,6 @@
-export class Node {
-    public name: string;
-    public relatedNodeNames: Set<string>;
-    public constructor(name: string, relatedNodes: Set<string>) {
-        this.name = name;
-        this.relatedNodeNames = relatedNodes;
-    }
-};
-
-export class IndexNode extends Node { }
-
-export class DataNode extends Node {
-    public url: string;
-    public constructor(name: string, url: string, relatedNodes: Set<string>) {
-        super(name, relatedNodes);
-        this.url = url;
-    }
+export interface NodeData {
+    name: string;
+    relatedNodeNames: string[];
 }
 
 export const enum Action {
@@ -25,7 +11,7 @@ export const enum Action {
 
 export type UpsertMessage = {
     action: Action.Upsert;
-    data: Node;
+    data: NodeData;
 }
 
 export type DeleteMessage = {
@@ -41,5 +27,5 @@ export type SearchMessage = {
 export type OperationMessage = UpsertMessage | DeleteMessage | SearchMessage;
 
 export type SearchResultMessage = {
-    result: Array<Node>;
+    result: NodeData[];
 }

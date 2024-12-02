@@ -1,14 +1,14 @@
 import { useState } from "react";
 import {
   Action,
-  Node,
+  NodeData,
   OperationMessage,
   SearchResultMessage,
 } from "@/interface";
 
 function App() {
   const [keyword, setKeyword] = useState("");
-  const [data, setData] = useState(new Array<Node>());
+  const [data, setData] = useState(new Array<NodeData>());
   useEffect(() => {
     search(keyword);
   }, []);
@@ -36,7 +36,7 @@ function App() {
         onChange={handleChange}
       />
       <div>
-        {Array.from(data).map((node: Node) => {
+        {Array.from(data).map((node: NodeData) => {
           return <li>{node.name}</li>;
         })}
       </div>

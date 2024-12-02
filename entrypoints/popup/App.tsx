@@ -1,33 +1,69 @@
-import { useState } from 'react';
-import reactLogo from '@/assets/react.svg';
-import wxtLogo from '/wxt.svg';
-import './App.css';
-
+import {
+  Action,
+  SearchMessage,
+  SearchResultMessage,
+  UpsertMessage,
+} from "@/interface";
+import { useState } from "react";
 function App() {
-  const [count, setCount] = useState(0);
-
+  const [title, setTitle] = useState("");
+  useEffect(() => {
+    browser.tabs
+      .query({
+        active: true,
+        currentWindow: true,
+      })
+      .then((tabs) => {
+        setTitle(tabs[0].title as string);
+      })
+      .then(() => fetchSelectOptions(""));
+  }, []);
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setTitle(event.target.value);
+  }
+  const [options, setOptions] = useState<string[]>([]);
+  const [option, setOption] = useState("");
+  async function fetchSelectOptions(keyword: string) {
+    const message: SearchMessage = {
+      action: Action.Search,
+      data: keyword,
+    };
+    browser.runtime
+      .sendMessage(message)
+      .then((response: SearchResultMessage) => {
+        setOptions(response.result.map((item) => item.name));
+      });
+  }
+  function handleSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    setOption(event.target.value);
+  }
+  function handleClickOK() {
+    const message: UpsertMessage = {
+      action: Action.Upsert,
+      data: {
+        name: title,
+        relatedNodeNames: [option],
+      },
+    };
+    browser.runtime.sendMessage(message).then(() => {
+      window.close();
+    });
+  }
+  function handleClickCancel() {
+    window.close();
+  }
   return (
     <>
-      <div>
-        <a href="https://wxt.dev" target="_blank">
-          <img src={wxtLogo} className="logo" alt="WXT logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>WXT + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the WXT and React logos to learn more
-      </p>
+      <input type="text" value={title} onChange={handleChange} />
+      <select value={option} onChange={handleSelectChange}>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      <button onClick={handleClickOK}>OK</button>
+      <button onClick={handleClickCancel}>Cancel</button>
     </>
   );
 }
