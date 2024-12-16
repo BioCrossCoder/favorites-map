@@ -17,7 +17,12 @@ let data: GraphData = {};
 
 class GraphStorage {
     public static async load(): Promise<void> {
-        (await storage.getItem(storageKey) as NodeData[]).forEach(node => {
+        let localData = await storage.getItem(storageKey);
+        if (!localData) {
+            localData = new Array<NodeData>();
+            storage.setItem(storageKey, localData);
+        }
+        (localData as NodeData[]).forEach(node => {
             data[node.url] = new Node(node.name, node.url, new Set(node.relatedNodeNames));
         });
     }
