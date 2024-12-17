@@ -23,7 +23,7 @@ class GraphStorage {
             storage.setItem(storageKey, localData);
         }
         (localData as NodeData[]).forEach(node => {
-            data[node.url] = new Node(node.name, node.url, new Set(node.relatedNodeNames));
+            data[node.url] = new Node(node.name, node.url, new Set(node.relatedNodes));
         });
     }
     public static async dump(): Promise<void> {
@@ -110,7 +110,7 @@ export default defineBackground(() => {
     browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResultMessage) => void) => {
         switch (message.action) {
             case Action.Upsert:
-                const node = new Node(message.data.name, message.data.url, new Set(message.data.relatedNodeNames));
+                const node = new Node(message.data.name, message.data.url, new Set(message.data.relatedNodes));
                 Graph.instance.upsert(node);
                 break;
             case Action.Delete:
@@ -121,7 +121,7 @@ export default defineBackground(() => {
                 const result: NodeData[] = Array.from(nodes).map(node => ({
                     name: node.name,
                     url: node.url,
-                    relatedNodeNames: Array.from(node.relatedNodeURLs)
+                    relatedNodes: Array.from(node.relatedNodeURLs)
                 }));
                 sendResponse({ result });
                 break;

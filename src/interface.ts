@@ -1,7 +1,7 @@
 export interface NodeData {
     name: string;
     url: string;
-    relatedNodeNames: string[];
+    relatedNodes: string[];
 }
 
 export const enum Action {
