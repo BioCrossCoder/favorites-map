@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import {
     Action,
-    SearchMessage,
-    SearchResultMessage,
     UpsertMessage,
     DeleteMessage,
     NodeData,
     OperationMessage,
 } from "@/interface";
+import { Close, Search } from "@element-plus/icons-vue";
 
 const title = ref("");
 const url = ref("");
@@ -20,22 +19,9 @@ onMounted(() => {
         .then((tabs: chrome.tabs.Tab[]) => {
             title.value = tabs[0].title as string;
             url.value = tabs[0].url as string;
-        })
-        .then(() => fetchSelectOptions(""));
+        });
 });
-const candidates = ref(new Array<NodeData>());
 const options = ref(new Array<NodeData>());
-async function fetchSelectOptions(keyword: string) {
-    const message: SearchMessage = {
-        action: Action.Search,
-        data: keyword,
-    };
-    browser.runtime.sendMessage(message).then((response: SearchResultMessage) => {
-        candidates.value = response.result.filter(
-            (item: NodeData) => item.url !== url.value
-        );
-    });
-}
 function handleClick(message: OperationMessage) {
     browser.runtime.sendMessage(message).then(window.close);
 }
@@ -57,23 +43,73 @@ function handleClickDelete() {
     };
     handleClick(message);
 }
+function handleClickClose() {
+    window.close();
+}
+function handleClickSelect() { }
 </script>
 
 <template>
-    <el-form label-width="auto" style="width: 300px; height: 180px">
-        <el-form-item label="Name">
-            <el-input v-model="title" />
-        </el-form-item>
-        <el-form-item label="Neighbours">
-            <el-select v-model="options" multiple clearable collapse-tags filterable>
-                <el-option v-for="item in candidates" :key="item.url" :label="item.name" :value="item.url" />
-            </el-select>
-        </el-form-item>
-        <el-form-item>
-            <el-button @click="handleClickSave">Save</el-button>
-            <el-button @click="handleClickDelete">Delete</el-button>
-        </el-form-item>
-    </el-form>
+    <el-container class="container">
+        <el-header class="side-row">
+            <el-row justify="space-between" align="middle">
+                <el-text size="large" tag="b">Add to Favorites Map</el-text>
+                <el-button text @click="handleClickClose" class="close-btn">
+                    <el-icon size="20">
+                        <Close />
+                    </el-icon>
+                </el-button>
+            </el-row>
+        </el-header>
+        <el-main class="main">
+            <el-form label-width="auto" label-position="left" class="row-with-margin">
+                <el-form-item label="Name">
+                    <el-input v-model="title" autofocus />
+                </el-form-item>
+                <el-form-item label="Neighbors">
+                    <el-button type="primary" :icon="Search" class="search-btn" @click="handleClickSelect">View / Select
+                        in
+                        Map</el-button>
+                </el-form-item>
+            </el-form>
+        </el-main>
+        <el-footer class="side-row">
+            <el-row justify="end">
+                <el-button @click="handleClickSave" type="primary">Save</el-button>
+                <el-button @click="handleClickDelete">Delete</el-button>
+            </el-row>
+        </el-footer>
+    </el-container>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+@use "@/assets/styles/common.scss";
+
+.container {
+    width: 300px;
+    height: 180px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+$height: 40px;
+
+.side-row {
+    height: $height;
+    @extend %reset;
+}
+
+.main {
+    @extend %reset;
+}
+
+.close-btn {
+    $btn-width: $height*0.75;
+    height: $btn-width;
+    width: $btn-width;
+}
+
+.search-btn {
+    width: 100%;
+}
+</style>

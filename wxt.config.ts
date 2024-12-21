@@ -1,4 +1,6 @@
 import { defineConfig } from 'wxt';
+import Icons from 'unplugin-icons/vite'
+import IconsResolver from 'unplugin-icons/resolver'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
@@ -24,10 +26,25 @@ export default defineConfig({
   vite: () => ({
     plugins: [
       AutoImport({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [
+          ElementPlusResolver(),
+          IconsResolver({
+            prefix: 'Icon',
+          }),
+        ],
+        dts: './auto-imports.d.ts'
       }),
       Components({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [
+          ElementPlusResolver(),
+          IconsResolver({
+            enabledCollections: ['ep'],
+          })
+        ],
+        dts: './components.d.ts'
+      }),
+      Icons({
+        autoInstall: true,
       })
     ]
   })
