@@ -88,14 +88,11 @@ function handleClickSelect() { }
 .container {
     width: 300px;
     height: 180px;
-    padding-left: 10px;
-    padding-right: 10px;
+    @extend %container-row-padding;
 }
 
-$height: 40px;
-
 .side-row {
-    height: $height;
+    height: common.$bar-height;
     @extend %reset;
 }
 
@@ -104,7 +101,7 @@ $height: 40px;
 }
 
 .close-btn {
-    $btn-width: $height*0.75;
+    $btn-width: common.$bar-height*0.75;
     height: $btn-width;
     width: $btn-width;
 }
