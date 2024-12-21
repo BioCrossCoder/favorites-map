@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Action, NodeData, OperationMessage, SearchResultMessage } from '@/interface';
-import { Search } from '@element-plus/icons-vue';
+import { Search, View, Edit } from '@element-plus/icons-vue';
 
 const keyword = ref('')
 const items = ref(new Array<NodeData>())
@@ -22,6 +22,12 @@ watch(keyword, (newKeyword) => {
 function handleClickLink(url: string) {
     browser.tabs.update({ url: url });
 }
+function handleClickView(url: string) {
+
+}
+function handleClickEdit(url: string) {
+
+}
 </script>
 
 <template>
@@ -30,8 +36,18 @@ function handleClickLink(url: string) {
             <el-input v-model="keyword" :prefix-icon="Search" />
         </el-header>
         <el-main class="main">
-            <el-row v-for="node in items" class="row" @click="() => handleClickLink(node.url)" :icon="Search">
-                <el-text class="txt">{{ node.name }}</el-text>
+            <el-row v-for="node in items" class="row">
+                <el-tooltip :content="node.name" placement="bottom-end" class="tooltip">
+                    <el-text class="txt" @click="() => handleClickLink(node.url)" :icon="Search">
+                        {{ node.name }}
+                    </el-text>
+                </el-tooltip>
+                <el-icon size="20" class="icon" @click="() => handleClickView(node.url)">
+                    <View />
+                </el-icon>
+                <el-icon size="20" class="icon" @click="() => handleClickEdit(node.url)">
+                    <Edit />
+                </el-icon>
             </el-row>
         </el-main>
     </el-container>
@@ -56,20 +72,30 @@ $row-height: common.$bar-height*0.8;
     @extend %reset;
     @extend %container-row-padding;
     height: $row-height;
+}
 
+%hover-style {
     &:hover {
-        background-color: #409EFF;
+        color: #409EFF;
+        cursor: pointer;
     }
 }
 
-.txt {
-    @extend %fill-container;
-    @extend %text-truncate;
-    align-content: center;
+$icon-size: 20px;
+$icon-padding: 2px;
 
-    &:hover {
-        color: white;
-        cursor: pointer;
-    }
+.txt {
+    @extend %text-truncate;
+    @extend %hover-style;
+    align-content: center;
+    width: calc(100% - 2*($icon-size + 2*$icon-padding));
+}
+
+.icon {
+    @extend %hover-style;
+    align-content: center;
+    height: $row-height;
+    padding-left: $icon-padding;
+    padding-right: $icon-padding;
 }
 </style>
