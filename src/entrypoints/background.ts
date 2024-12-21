@@ -96,8 +96,9 @@ class Graph {
         if (!data) {
             return result;
         }
+        keyword = keyword.trim().toLowerCase();
         for (const node of Object.values(data)) {
-            if (!keyword || node.url.includes(keyword) || node.name.includes(keyword)) {
+            if (!keyword || node.name.toLowerCase().includes(keyword)) {
                 result.add(node);
             }
         } // [/]
