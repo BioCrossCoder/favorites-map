@@ -104,6 +104,17 @@ class Graph {
         } // [/]
         return result;
     }
+    public select(url: string): Node | null {
+        return data[url] || null;
+    }
+}
+
+function buildResponse(data: Array<Node | null>): NodeData[] {
+    return data.filter(node => node !== null).map(node => ({
+        name: node.name,
+        url: node.url,
+        relatedNodes: Array.from(node.relatedNodeURLs)
+    }));
 }
 
 export default defineBackground(() => {
@@ -111,20 +122,29 @@ export default defineBackground(() => {
     browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResultMessage) => void) => {
         switch (message.action) {
             case Action.Upsert:
-                const node = new Node(message.data.name, message.data.url, new Set(message.data.relatedNodes));
-                Graph.instance.upsert(node);
+                {
+                    const node = new Node(message.data.name, message.data.url, new Set(message.data.relatedNodes));
+                    Graph.instance.upsert(node);
+                }
                 break;
             case Action.Delete:
-                Graph.instance.delete(message.data);
+                {
+                    Graph.instance.delete(message.data);
+                }
                 break;
             case Action.Search:
-                const nodes: Set<Node> = Graph.instance.search(message.data);
-                const result: NodeData[] = Array.from(nodes).map(node => ({
-                    name: node.name,
-                    url: node.url,
-                    relatedNodes: Array.from(node.relatedNodeURLs)
-                }));
-                sendResponse({ result });
+                {
+                    const nodes: Set<Node> = Graph.instance.search(message.data);
+                    const result: NodeData[] = buildResponse(Array.from(nodes));
+                    sendResponse({ result });
+                }
+                break;
+            case Action.Select:
+                {
+                    const node: Node | null = Graph.instance.select(message.data);
+                    const result: NodeData[] = buildResponse([node]);
+                    sendResponse({ result });
+                }
                 break;
         }
     })

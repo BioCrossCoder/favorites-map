@@ -5,11 +5,12 @@ import {
     DeleteMessage,
     NodeData,
     OperationMessage,
+    SearchResultMessage,
 } from "@/interface";
 import { Close, Search } from "@element-plus/icons-vue";
 
 const title = ref("");
-const url = ref("");
+const id = ref("");
 onMounted(() => {
     browser.tabs
         .query({
@@ -18,19 +19,32 @@ onMounted(() => {
         })
         .then((tabs: chrome.tabs.Tab[]) => {
             title.value = tabs[0].title as string;
-            url.value = tabs[0].url as string;
+            id.value = tabs[0].url as string;
+            load(id.value);
         });
 });
+function load(url: string) {
+    const message: OperationMessage = {
+        action: Action.Select,
+        data: url,
+    };
+    browser.runtime.sendMessage(message).then((response: SearchResultMessage) => {
+        if (response.result.length > 0) {
+            title.value = response.result[0].name;
+        }
+    })
+}
 const options = ref(new Array<NodeData>());
 function handleClick(message: OperationMessage) {
     browser.runtime.sendMessage(message).then(window.close);
 }
+const canSave = computed<boolean>(() => title.value.trim() !== '');
 function handleClickSave() {
     const message: UpsertMessage = {
         action: Action.Upsert,
         data: {
             name: title.value,
-            url: url.value,
+            url: id.value,
             relatedNodes: options.value.map((item: NodeData) => item.url),
         },
     };
@@ -39,7 +53,7 @@ function handleClickSave() {
 function handleClickDelete() {
     const message: DeleteMessage = {
         action: Action.Delete,
-        data: url.value,
+        data: id.value,
     };
     handleClick(message);
 }
@@ -67,15 +81,15 @@ function handleClickSelect() { }
                     <el-input v-model="title" autofocus />
                 </el-form-item>
                 <el-form-item label="Neighbors">
-                    <el-button type="primary" :icon="Search" class="search-btn" @click="handleClickSelect">View / Select
-                        in
-                        Map</el-button>
+                    <el-button type="primary" :icon="Search" class="search-btn" @click="handleClickSelect">
+                        View / Select in Map
+                    </el-button>
                 </el-form-item>
             </el-form>
         </el-main>
         <el-footer class="side-row">
             <el-row justify="end">
-                <el-button @click="handleClickSave" type="primary">Save</el-button>
+                <el-button @click="handleClickSave" type="primary" :disabled="!canSave">Save</el-button>
                 <el-button @click="handleClickDelete">Delete</el-button>
             </el-row>
         </el-footer>
