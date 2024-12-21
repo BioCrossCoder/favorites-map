@@ -1,4 +1,4 @@
-import { Action, NodeData, OperationMessage, SearchResultMessage } from "@/interface";
+import { Action, NodeData, OperationMessage, SearchResultMessage, storageKey } from "@/interface";
 
 class Node {
     public url: string;
@@ -12,7 +12,6 @@ class Node {
 }
 
 type GraphData = Record<string, Node>;
-const storageKey: `local:${string}` = 'local:favorites_map';
 let data: GraphData = {};
 
 class GraphStorage {

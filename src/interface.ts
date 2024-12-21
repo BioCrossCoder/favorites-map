@@ -36,3 +36,5 @@ export type OperationMessage = UpsertMessage | DeleteMessage | SearchMessage | S
 export type SearchResultMessage = {
     result: NodeData[];
 }
+
+export const storageKey: `local:${string}` = 'local:favorites_map';

@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import { Action, NodeData, OperationMessage, SearchResultMessage } from '@/interface';
+import { Action, NodeData, OperationMessage, SearchResultMessage, storageKey } from '@/interface';
 import { Search, View, Edit } from '@element-plus/icons-vue';
 
 const keyword = ref('')
 const items = ref(new Array<NodeData>())
 onMounted(() => {
-    search(keyword.value)
+    search(keyword.value);
+    storage.watch(storageKey, () => search(keyword.value))
 })
 function search(keyword: string) {
     const message: OperationMessage = {
