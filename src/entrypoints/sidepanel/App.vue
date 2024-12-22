@@ -1,24 +1,17 @@
 <script lang="ts" setup>
-import { Action, NodeData, OperationMessage, SearchResultMessage, storageKey } from '@/interface';
+import { search } from '@/composables/search';
+import { NodeData, storageKey } from '@/interface';
 import { Search, View, Edit } from '@element-plus/icons-vue';
 
 const keyword = ref('')
 const items = ref(new Array<NodeData>())
 onMounted(() => {
-    search(keyword.value);
-    storage.watch(storageKey, () => search(keyword.value))
+    search(keyword.value, items);
+    storage.watch(storageKey, () => search(keyword.value, items))
 })
-function search(keyword: string) {
-    const message: OperationMessage = {
-        action: Action.Search,
-        data: keyword,
-    };
-    browser.runtime.sendMessage(message).then((response: SearchResultMessage) => {
-        items.value = response.result;
-    });
-}
+
 watch(keyword, (newKeyword) => {
-    search(newKeyword)
+    search(newKeyword, items)
 })
 function handleClickLink(url: string) {
     browser.tabs.update({ url: url });
@@ -51,6 +44,9 @@ function handleClickEdit(url: string) {
                 </el-icon>
             </el-row>
         </el-main>
+        <el-footer class="footer">
+            <Graph />
+        </el-footer>
     </el-container>
 </template>
 
@@ -64,20 +60,22 @@ function handleClickEdit(url: string) {
 
 $row-height: common.$bar-height*0.8;
 
-.main {
-    @extend %reset;
-    height: $row-height*10;
-}
-
 .row {
     @extend %reset;
     @extend %container-row-padding;
     height: $row-height;
 }
 
+$block-height: $row-height*10;
+
+.main {
+    @extend %reset;
+    height: $block-height;
+}
+
 %hover-style {
     &:hover {
-        color: #409EFF;
+        color: common.$theme-blue;
         cursor: pointer;
     }
 }
@@ -98,5 +96,10 @@ $icon-padding: 2px;
     height: $row-height;
     padding-left: $icon-padding;
     padding-right: $icon-padding;
+}
+
+.footer {
+    @extend %reset;
+    height: max($block-height, calc(100vh - $block-height - 1.5*common.$bar-height));
 }
 </style>
