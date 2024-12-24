@@ -28,9 +28,9 @@ function loadGraph() {
     }
     graph.value = new Network(document.getElementById('container')!, { nodes, edges }, {})
 }
-onBeforeMount(() => {
-    search('', data);
-})
+onBeforeMount(async () => {
+    data.value = (await search('')).result;
+});
 onMounted(() => {
     loadGraph();
     watch(data, loadGraph);

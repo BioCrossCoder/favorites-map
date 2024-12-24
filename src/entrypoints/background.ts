@@ -16,12 +16,8 @@ let data: GraphData = {};
 
 class GraphStorage {
     public static async load(): Promise<void> {
-        let localData = await storage.getItem(storageKey);
-        if (!localData) {
-            localData = new Array<NodeData>();
-            storage.setItem(storageKey, localData);
-        }
-        (localData as NodeData[]).forEach(node => {
+        let localData = await storage.getItem(storageKey) as NodeData[];
+        localData.forEach(node => {
             data[node.url] = new Node(node.name, node.url, new Set(node.relatedNodes));
         });
     }
@@ -36,7 +32,7 @@ class GraphStorage {
         storage.watch(storageKey, GraphStorage.load);
     }
     public static syncStorageData() {
-        storage.getItem(storageKey).then((value) => {
+        storage.getItem(storageKey).then(value => {
             if (!value) {
                 GraphStorage.dump().then(GraphStorage._monitor);
             } else {
@@ -117,6 +113,11 @@ function buildResponse(data: Array<Node | null>): NodeData[] {
 }
 
 export default defineBackground(() => {
+    browser.runtime.onStartup.addListener(() => {
+        storage.defineItem<Array<NodeData>>(storageKey, {
+            fallback: new Array<NodeData>(),
+        });
+    });
     browser.runtime.onInstalled.addListener(GraphStorage.load);
     browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResultMessage) => void) => {
         switch (message.action) {

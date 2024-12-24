@@ -5,14 +5,16 @@ import { Search, View, Edit } from '@element-plus/icons-vue';
 
 const keyword = ref('')
 const items = ref(new Array<NodeData>())
-onMounted(() => {
-    search(keyword.value, items);
-    storage.watch(storageKey, () => search(keyword.value, items))
+async function loadSearchResult(keyword: string) {
+    items.value = (await search(keyword)).result;
+}
+onMounted(async () => {
+    const f = async () => await loadSearchResult(keyword.value);
+    await f();
+    storage.watch(storageKey, f);
 })
 
-watch(keyword, (newKeyword) => {
-    search(newKeyword, items)
-})
+watch(keyword, loadSearchResult);
 function handleClickLink(url: string) {
     browser.tabs.update({ url: url });
 }
