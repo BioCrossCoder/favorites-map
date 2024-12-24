@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import { search } from '@/composables/search';
 import { NodeData, storageKey } from '@/interface';
 import { Search, View, Edit } from '@element-plus/icons-vue';
 
 const keyword = ref('')
 const items = ref(new Array<NodeData>())
-async function loadSearchResult(keyword: string) {
-    items.value = (await search(keyword)).result;
+const store = useFavoritesMapStore();
+function loadSearchResult(keyword: string) {
+    items.value = store.search(keyword);
 }
-onMounted(async () => {
-    const f = async () => await loadSearchResult(keyword.value);
-    await f();
+onMounted(() => {
+    const f = () => loadSearchResult(keyword.value);
+    f();
     storage.watch(storageKey, f);
 })
 

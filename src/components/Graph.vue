@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { search } from '@/composables/search';
 import { NodeData } from '@/interface';
 import { Node, Edge, DataSet, Network } from 'vis-network/standalone';
 
 const data = ref(new Array<NodeData>());
 const graph = ref(new Network(document.createElement('div'), {}, {}));
+const store = useFavoritesMapStore();
 function loadGraph() {
     const nodes = new DataSet<Node, 'id'>();
     const nodeIndex: Record<string, number> = {};
@@ -28,8 +28,8 @@ function loadGraph() {
     }
     graph.value = new Network(document.getElementById('container')!, { nodes, edges }, {})
 }
-onBeforeMount(async () => {
-    data.value = (await search('')).result;
+onBeforeMount(() => {
+    data.value = store.search('');
 });
 onMounted(() => {
     loadGraph();
