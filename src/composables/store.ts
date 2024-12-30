@@ -15,8 +15,10 @@ export const useFavoritesMapStore = defineStore('favorites-map', () => {
     const monitor = () => search('', data);
     monitor();
     storage.watch(storageKey, monitor);
-    function searchProxy(keyword: string): NodeData[] {
-        return data.value.filter((node: NodeData) => !keyword || node.name.toLowerCase().includes(keyword));
+    function searchProxy(keyword: Ref<string>): ComputedRef<NodeData[]> {
+        return computed(() => {
+            return data.value.filter((node: NodeData) => !keyword.value || node.name.toLowerCase().includes(keyword.value));
+        });
     }
     return {
         search: searchProxy,
