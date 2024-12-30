@@ -1,50 +1,38 @@
 <script lang="ts" setup>
-import { NodeData } from '@/interface';
-import { Node, Edge, DataSet, Network } from 'vis-network/standalone';
+import { Edge, Node } from 'v-network-graph';
 
-const data = ref(new Array<NodeData>());
-const graph = ref(new Network(document.createElement('div'), {}, {}));
 const store = useFavoritesMapStore();
-function loadGraph() {
-    const nodes = new DataSet<Node, 'id'>();
-    const nodeIndex: Record<string, number> = {};
-    let id: number;
-    for (const [index, node] of Object.entries(data.value)) {
-        id = Number(index);
-        nodes.add({
-            id,
-            label: node.name,
-        });
-        nodeIndex[node.url] = id;
+const data = store.search(ref(''));
+const nodes = computed<Record<string, Node>>(() => {
+    const nodeMap = {} as Record<string, Node>;
+    for (const node of data.value) {
+        nodeMap[node.url] = { name: node.name };
     }
-    const edges = new DataSet<Edge, 'id'>();
+    return nodeMap;
+});
+const edges = computed<Record<string, Edge>>(() => {
+    const edgeMap = {} as Record<string, Edge>;
+    let count: number = 0;
     for (const node of data.value) {
         for (const neighbour of node.relatedNodes) {
-            edges.add({
-                from: nodeIndex[node.url],
-                to: nodeIndex[neighbour],
-            });
+            edgeMap[String(++count)] = {
+                source: node.url,
+                target: neighbour,
+            };
         }
     }
-    graph.value = new Network(document.getElementById('container')!, { nodes, edges }, {})
-}
-onBeforeMount(() => {
-    data.value = store.search('');
-});
-onMounted(() => {
-    loadGraph();
-    watch(data, loadGraph);
+    return edgeMap;
 });
 </script>
 
 <template>
-    <div id="container"></div>
+    <v-network-graph id="graph" :nodes="nodes" :edges="edges" />
 </template>
 
 <style lang="scss" scoped>
 @use "@/assets/styles/common.scss";
 
-#container {
+#graph {
     @extend %fill-container;
     border: 1px solid common.$theme-blue;
 }
