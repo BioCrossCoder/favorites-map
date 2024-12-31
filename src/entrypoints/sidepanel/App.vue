@@ -1,14 +1,18 @@
 <script lang="ts" setup>
-import { Search, View, Edit } from '@element-plus/icons-vue';
+import { useGraphPositionStore } from '@/composables/store';
+import { Search, Edit, Location } from '@element-plus/icons-vue';
 
 const keyword = ref('')
 const store = useFavoritesMapStore();
 const items = store.search(keyword);
-function handleClickLink(url: string) {
-    browser.tabs.update({ url: url });
-}
-function handleClickView(url: string) {
 
+function handleClickLink(url: string) {
+    browser.tabs.update({ url });
+}
+
+const position = useGraphPositionStore();
+function handleClickView(url: string) {
+    position.set(url);
 }
 function handleClickEdit(url: string) {
 
@@ -22,13 +26,13 @@ function handleClickEdit(url: string) {
         </el-header>
         <el-main class="main">
             <el-row v-for="node in items" class="row">
-                <el-tooltip :content="node.name" placement="bottom-end" class="tooltip">
+                <el-tooltip :content="node.name" placement="bottom-end">
                     <el-text class="txt" @click="() => handleClickLink(node.url)" :icon="Search">
                         {{ node.name }}
                     </el-text>
                 </el-tooltip>
                 <el-icon size="20" class="icon" @click="() => handleClickView(node.url)">
-                    <View />
+                    <Location />
                 </el-icon>
                 <el-icon size="20" class="icon" @click="() => handleClickEdit(node.url)">
                     <Edit />

@@ -40,3 +40,14 @@ export const useFavoritesMapStore = defineStore('favorites-map', () => {
         find,
     } // [/]
 });
+
+export const useGraphPositionStore = defineStore('graph-position', () => {
+    const value = ref('');
+    function set(newValue: string) {
+        value.value = newValue;
+    }
+    return {
+        value: readonly(value),
+        set
+    };
+});

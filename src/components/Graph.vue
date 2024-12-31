@@ -1,13 +1,14 @@
 <script lang="ts" setup>
+import { useGraphPositionStore } from '@/composables/store';
 import * as vNG from 'v-network-graph';
 
 // Load data and init states
 const store = useFavoritesMapStore();
 const data = store.search(ref(''));
 const configs = ref(vNG.defineConfigs({ node: { selectable: true } }));
-const selectedNodes = ref(['']);
-const position = computed(() => {
-    return selectedNodes.value[0];
+const position = useGraphPositionStore();
+const selectedNodes = computed(() => {
+    return position.value ? [position.value] : [];
 });
 
 // Calculate visible nodes
@@ -46,7 +47,7 @@ const edges = computed<Record<string, vNG.Edge>>(() => {
 // Interaction callbacks
 const eventHandlers: vNG.EventHandlers = {
     'node:click': ({ node }) => {
-        selectedNodes.value = [node];
+        position.set(node);
     }
 }
 function handleClickVisit() {
@@ -57,7 +58,7 @@ function handleClickVisit() {
     }
 }
 function handleClickOverview() {
-    selectedNodes.value[0] = '';
+    position.set('');
 }
 </script>
 
