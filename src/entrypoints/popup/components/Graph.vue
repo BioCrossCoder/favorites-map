@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useSelectedNodesStore } from '@/composables/store';
+import { useFavoritesMapStore, useSelectedNodesStore } from '@/composables/store';
 import * as vNG from 'v-network-graph';
 import { useRouter } from 'vue-router';
 

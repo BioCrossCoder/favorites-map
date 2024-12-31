@@ -33,7 +33,6 @@ function handleClick(message: OperationMessage) {
 }
 const canSave = computed<boolean>(() => title.value.trim() !== '');
 function handleClickSave() {
-    console.log(store.value);
     const message: UpsertMessage = {
         action: Action.Upsert,
         data: {
