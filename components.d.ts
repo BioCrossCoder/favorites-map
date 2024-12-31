@@ -20,6 +20,6 @@ declare module 'vue' {
     ElRow: typeof import('element-plus/es')['ElRow']
     ElText: typeof import('element-plus/es')['ElText']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
-    Graph: typeof import('./src/components/Graph.vue')['default']
+    Graph: typeof import('./src/entrypoints/sidepanel/components/Graph.vue')['default']
   }
 }
