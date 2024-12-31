@@ -51,3 +51,33 @@ export const useGraphPositionStore = defineStore('graph-position', () => {
         set
     };
 });
+
+export const useSelectedNodesStore = defineStore('selected-nodes', () => {
+    const data = ref(new Set<string>());
+    const value = computed(() => {
+        return Array.from(data.value);
+    });
+    function add(node: string) {
+        data.value.add(node);
+    }
+    function remove(node: string) {
+        data.value.delete(node);
+    }
+    function has(node: string): boolean {
+        return data.value.has(node);
+    }
+    const init = ref(false);
+    function load(nodes: string[]) {
+        if (!init.value) {
+            nodes.map(add);
+            init.value = true;
+        }
+    }
+    return {
+        value: readonly(value),
+        add,
+        remove,
+        has,
+        load
+    }
+});

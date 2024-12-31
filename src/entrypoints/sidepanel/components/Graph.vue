@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { useGraphPositionStore } from '@/composables/store';
+import { useFavoritesMapStore, useGraphPositionStore } from '@/composables/store';
 import * as vNG from 'v-network-graph';
 
 // Load data and init states
+
 const store = useFavoritesMapStore();
 const data = store.search(ref(''));
 const configs = ref(vNG.defineConfigs({ node: { selectable: true } }));
@@ -60,6 +61,10 @@ function handleClickVisit() {
 function handleClickOverview() {
     position.set('');
 }
+const graph = ref<vNG.Instance>();
+watch([nodes, edges], async () => {
+    setTimeout(graph.value!.panToCenter, 0);
+});
 </script>
 
 <template>
@@ -70,7 +75,7 @@ function handleClickOverview() {
         </el-header>
         <el-main class="main">
             <v-network-graph id="graph" :nodes="nodes" :edges="edges" :selectedNodes="selectedNodes" :configs="configs"
-                :event-handlers="eventHandlers" />
+                :event-handlers="eventHandlers" ref="graph" />
         </el-main>
     </el-container>
 </template>
