@@ -11,7 +11,7 @@ export default defineConfig({
   srcDir: 'src',
   modules: ['@wxt-dev/module-vue'],
   manifest: {
-    permissions: ['storage', 'tabs', 'sidePanel'],
+    permissions: ['storage', 'tabs', 'sidePanel', 'history'],
     default_locale: 'en',
     name: '__MSG_extName__',
     description: '__MSG_extDescription__',
