@@ -11,22 +11,45 @@ class Node {
     }
 }
 
-type GraphData = Record<string, Node>;
-let data: GraphData = {};
+let data = {} as Record<string, Node>;
 
 class GraphStorage {
     public static async load(): Promise<void> {
-        let localData = await storage.getItem(storageKey) as NodeData[];
-        localData.forEach(node => {
-            data[node.url] = new Node(node.name, node.url, new Set(node.relatedNodes));
+        const dataToLoad = await storage.getItem(storageKey) as GraphData;
+        const relatedNodes = new Map<string, string[]>();
+        dataToLoad.edges.forEach(([id1, id2]) => {
+            if (!relatedNodes.has(id1)) {
+                relatedNodes.set(id1, []);
+            }
+            relatedNodes.get(id1)!.push(id2);
+            if (!relatedNodes.has(id2)) {
+                relatedNodes.set(id2, []);
+            }
+            relatedNodes.get(id2)!.push(id1);
+        })
+        dataToLoad.nodes.forEach(node => {
+            data[node.id] = new Node(node.name, node.id, new Set(relatedNodes.get(node.id)));
         });
     }
     public static async dump(): Promise<void> {
-        await storage.setItem(storageKey, Object.values(data).map(node => ({
-            name: node.name,
-            url: node.url,
-            relatedNodeURLs: node.relatedNodeURLs,
-        })));
+        const nodesData = new Array<NodeMetaData>();
+        const edgesData = new Set<string>();
+        Object.values(data).forEach((node: Node) => {
+            nodesData.push({
+                id: node.url,
+                name: node.name
+            });
+            Array.from(node.relatedNodeURLs).forEach((url: string) => {
+                edgesData.add(JSON.stringify([node.url, url].sort()))
+            });
+        });
+        const dataToDump = {
+            nodes: nodesData,
+            edges: Array.from(edgesData).map((json: string) => {
+                return JSON.parse(json) as [string, string];
+            })
+        } as GraphData;
+        await storage.setItem(storageKey, dataToDump);
     }
     private static _monitor() {
         storage.watch(storageKey, GraphStorage.load);
@@ -112,10 +135,23 @@ function buildResponse(data: Array<Node | null>): NodeData[] {
     }));
 }
 
+type NodeMetaData = {
+    id: string,
+    name: string,
+}
+
+type GraphData = {
+    nodes: NodeMetaData[],
+    edges: [string, string][]
+}
+
 export default defineBackground(() => {
     browser.runtime.onStartup.addListener(() => {
-        storage.defineItem<Array<NodeData>>(storageKey, {
-            fallback: new Array<NodeData>(),
+        storage.defineItem(storageKey, {
+            fallback: {
+                nodes: [],
+                edges: [],
+            } as GraphData,
         });
     });
     browser.runtime.onInstalled.addListener(GraphStorage.load);
