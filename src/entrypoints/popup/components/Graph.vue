@@ -13,7 +13,10 @@ const selectedNodes = useSelectedNodesStore();
 const nodes = computed<Record<string, vNG.Node>>(() => {
     const nodeMap = {} as Record<string, vNG.Node>;
     for (const node of data.value) {
-        nodeMap[node.url] = { name: node.name };
+        nodeMap[node.url] = {
+            name: node.name,
+            active: selectedNodes.has(node.name),
+        };
     }
     return nodeMap;
 });
@@ -41,6 +44,9 @@ const eventHandlers: vNG.EventHandlers = {
         } else {
             selectedNodes.add(node);
         }
+    },
+    'view:click': () => {
+        selectedNodes.clear();
     }
 }
 const router = useRouter();

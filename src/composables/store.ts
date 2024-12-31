@@ -73,11 +73,15 @@ export const useSelectedNodesStore = defineStore('selected-nodes', () => {
             init.value = true;
         }
     }
+    function clear() {
+        data.value.clear();
+    }
     return {
         value: readonly(value),
         add,
         remove,
         has,
-        load
+        load,
+        clear
     }
 });

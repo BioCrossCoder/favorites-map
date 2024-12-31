@@ -38,7 +38,7 @@ function handleClickSave() {
         data: {
             name: title.value,
             url: id.value,
-            relatedNodes: Array.from(store.value),
+            relatedNodes: Array.from(store.value.filter((value: string) => value !== id.value)),
         },
     };
     handleClick(message);
