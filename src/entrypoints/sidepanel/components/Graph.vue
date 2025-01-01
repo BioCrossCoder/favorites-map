@@ -1,11 +1,12 @@
 <script lang="ts" setup>
+import { createGraphConfig } from '@/composables/config';
 import { useFavoritesMapStore, useGraphPositionStore } from '@/composables/store';
 import * as vNG from 'v-network-graph';
 
 // Load data and init states
 const store = useFavoritesMapStore();
 const data = store.search(ref(''));
-const configs = vNG.defineConfigs({ node: { selectable: true } });
+const configs = createGraphConfig(true);
 const position = useGraphPositionStore();
 const selectedNodes = computed(() => {
     return position.value ? [position.value] : [];

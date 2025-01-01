@@ -2,11 +2,12 @@
 import { useFavoritesMapStore, useSelectedNodesStore } from '@/composables/store';
 import * as vNG from 'v-network-graph';
 import { useRouter } from 'vue-router';
+import { createGraphConfig } from '@/composables/config';
 
 // Load data and init states
 const store = useFavoritesMapStore();
 const data = store.search(ref(''));
-const configs = vNG.defineConfigs({ node: { selectable: true } });
+const configs=createGraphConfig(false);
 const selectedNodes = useSelectedNodesStore();
 const selectedNodesOld = ref(new Array<string>());
 onMounted(() => {
