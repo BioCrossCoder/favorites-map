@@ -8,6 +8,10 @@ const store = useFavoritesMapStore();
 const data = store.search(ref(''));
 const configs = vNG.defineConfigs({ node: { selectable: true } });
 const selectedNodes = useSelectedNodesStore();
+const selectedNodesOld = ref(new Array<string>());
+onMounted(() => {
+    selectedNodesOld.value = Array.from(selectedNodes.value);
+});
 
 // Build nodes
 const nodes = computed<Record<string, vNG.Node>>(() => {
@@ -53,13 +57,17 @@ const router = useRouter();
 function handleClickOK() {
     router.back();
 }
-
+function handleClickReset() {
+    selectedNodes.clear();
+    selectedNodesOld.value.forEach(selectedNodes.add);
+}
 </script>
 
 <template>
     <el-container class="container">
         <el-header class="header">
             <el-button type="primary" @click="handleClickOK">OK</el-button>
+            <el-button @click="handleClickReset">Reset</el-button>
         </el-header>
         <el-main class="main">
             <v-network-graph id="graph" :nodes="nodes" :edges="edges" :selectedNodes="selectedNodes.value"
