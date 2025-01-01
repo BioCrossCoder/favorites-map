@@ -7,12 +7,13 @@ import { createGraphConfig } from '@/composables/config';
 // Load data and init states
 const store = useFavoritesMapStore();
 const data = store.search(ref(''));
-const configs=createGraphConfig(false);
+const configs = createGraphConfig(false);
 const selectedNodes = useSelectedNodesStore();
 const selectedNodesOld = ref(new Array<string>());
 onMounted(() => {
     selectedNodesOld.value = Array.from(selectedNodes.value);
 });
+const hoverNode = ref('');
 
 // Build nodes
 const nodes = computed<Record<string, vNG.Node>>(() => {
@@ -50,6 +51,12 @@ const eventHandlers: vNG.EventHandlers = {
             selectedNodes.add(node);
         }
     },
+    'node:pointerover': ({ node }) => {
+        hoverNode.value = store.find(node).name;
+    },
+    'node:pointerout': () => {
+        hoverNode.value = '';
+    },
     'view:click': () => {
         selectedNodes.clear();
     }
@@ -69,6 +76,8 @@ function handleClickReset() {
         <el-header class="header">
             <el-button type="primary" @click="handleClickOK">OK</el-button>
             <el-button @click="handleClickReset">Reset</el-button>
+            <br />
+            <el-tag size="large" class="tag">{{ hoverNode }}</el-tag>
         </el-header>
         <el-main class="main">
             <v-network-graph id="graph" :nodes="nodes" :edges="edges" :selectedNodes="selectedNodes.value"
@@ -86,18 +95,25 @@ function handleClickReset() {
     width: 750px;
 }
 
+$header-height: 2*common.$bar-height;
+
 .header {
     @extend %reset;
-    height: common.$bar-height;
+    height: $header-height;
 }
 
 .main {
     @extend %reset;
-    height: calc(100% - common.$bar-height);
+    height: calc(100% - $header-height);
 }
 
 #graph {
     height: calc(100% - 4*common.$border-width);
     width: calc(100% - 2*common.$border-width);
+}
+
+.tag {
+    @extend %row-margin;
+    width: 100%;
 }
 </style>

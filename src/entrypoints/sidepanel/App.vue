@@ -27,7 +27,8 @@ function handleClickEdit(url: string) {
         </el-header>
         <el-main class="main">
             <el-row v-for="node in items" class="row">
-                <el-tooltip :content="node.name" placement="bottom-end">
+                <el-tooltip placement="bottom-end">
+                    <template #content>{{ node.name }}<br />{{ node.url }}</template>
                     <el-text class="txt" @click="() => handleClickLink(node.url)" :icon="Search">
                         {{ node.name }}
                     </el-text>
@@ -62,7 +63,7 @@ $row-height: common.$bar-height*0.8;
     height: $row-height;
 }
 
-$block-height: $row-height*10;
+$block-height: $row-height*8;
 
 .main {
     @extend %reset;

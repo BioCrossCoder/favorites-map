@@ -33,6 +33,7 @@ export function createGraphConfig(keepActive: boolean) {
             draggable: false,
             label: {
                 directionAutoAdjustment: true,
+                text: (n: vNG.Node) => n.name!.slice(0, 5)
             },
             hover: {
                 color: '#F56C6C',

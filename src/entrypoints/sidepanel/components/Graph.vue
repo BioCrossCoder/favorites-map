@@ -11,6 +11,10 @@ const position = useGraphPositionStore();
 const selectedNodes = computed(() => {
     return position.value ? [position.value] : [];
 });
+const hoverNode = ref('');
+const hintText = computed(() => {
+    return hoverNode.value || position.value;
+})
 
 // Calculate visible nodes
 const view = computed(() => {
@@ -49,6 +53,12 @@ const edges = computed<Record<string, vNG.Edge>>(() => {
 const eventHandlers: vNG.EventHandlers = {
     'node:click': ({ node }) => {
         position.set(node);
+    },
+    'node:pointerover': ({ node }) => {
+        hoverNode.value = store.find(node).name;
+    },
+    'node:pointerout': () => {
+        hoverNode.value = '';
     }
 }
 function handleClickVisit() {
@@ -72,6 +82,8 @@ watch([nodes, edges], async () => {
         <el-header class="header">
             <el-button type="primary" @click="handleClickVisit">Visit</el-button>
             <el-button @click="handleClickOverview">Overview</el-button>
+            <br />
+            <el-tag size="large" class="tag">{{ hintText }}</el-tag>
         </el-header>
         <el-main class="main">
             <v-network-graph id="graph" :nodes="nodes" :edges="edges" :selectedNodes="selectedNodes" :configs="configs"
@@ -87,14 +99,16 @@ watch([nodes, edges], async () => {
     @extend %fill-container;
 }
 
+$header-height: 2*common.$bar-height;
+
 .header {
     @extend %reset;
-    height: common.$bar-height;
+    height: $header-height;
 }
 
 .main {
     @extend %reset;
-    height: calc(100% - common.$bar-height);
+    height: calc(100% - $header-height);
 }
 
 #graph {
@@ -102,5 +116,15 @@ watch([nodes, edges], async () => {
     height: max($min-side-length, calc(100% - 4*common.$border-width));
     width: max($min-side-length, calc(100% - 2*common.$border-width));
     border: common.$border-width solid common.$theme-blue;
+}
+
+.tag {
+    @extend %row-margin;
+    width: 100%;
+    display: inline-block;
+    text-align: center;
+    align-content: center;
+    white-space: normal;
+    word-break: break-all;
 }
 </style>

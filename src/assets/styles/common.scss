@@ -11,10 +11,16 @@ $bar-height: 40px;
     padding-right: $padding-width;
 }
 
+$row-padding-margin-width: 5px;
+
 %container-col-padding {
-    $padding-width: 5px;
-    padding-top: $padding-width;
-    padding-bottom: $padding-width;
+    padding-top: $row-padding-margin-width;
+    padding-bottom: $row-padding-margin-width;
+}
+
+%row-margin {
+    margin-top: $row-padding-margin-width;
+    margin-bottom: $row-padding-margin-width;
 }
 
 %fill-container {
