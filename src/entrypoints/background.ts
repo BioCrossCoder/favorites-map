@@ -59,7 +59,7 @@ class GraphStorage {
             if (!value) {
                 GraphStorage.dump().then(GraphStorage._monitor);
             } else {
-                GraphStorage._monitor();
+                GraphStorage.load().then(GraphStorage._monitor);
             }
         })
     }
