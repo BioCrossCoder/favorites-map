@@ -15,7 +15,10 @@ let data = {} as Record<string, Node>;
 
 class GraphStorage {
     public static async load(): Promise<void> {
-        const dataToLoad = await storage.getItem(storageKey) as GraphData;
+        const dataToLoad: GraphData | null = await storage.getItem(storageKey);
+        if (!dataToLoad) {
+            return
+        }
         const relatedNodes = new Map<string, string[]>();
         dataToLoad.edges.forEach(([id1, id2]) => {
             if (!relatedNodes.has(id1)) {
