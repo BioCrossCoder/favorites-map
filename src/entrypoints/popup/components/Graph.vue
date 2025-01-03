@@ -90,21 +90,18 @@ function handleClickReset() {
 @use "@/assets/styles/common.scss";
 
 .container {
-    @extend %reset;
-    height: 550px;
+    @include common.block-with-height(550px);
     width: 750px;
 }
 
 $header-height: 2*common.$bar-height;
 
 .header {
-    @extend %reset;
-    height: $header-height;
+    @include common.block-with-height($header-height);
 }
 
 .main {
-    @extend %reset;
-    height: calc(100% - $header-height);
+    @include common.block-with-height(calc(100% - $header-height));
 }
 
 #graph {
@@ -113,7 +110,6 @@ $header-height: 2*common.$bar-height;
 }
 
 .tag {
-    @extend %col-margin;
-    width: 100%;
+    @extend %graph-tag;
 }
 </style>

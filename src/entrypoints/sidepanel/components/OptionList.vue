@@ -6,9 +6,7 @@ import { useRouter } from 'vue-router';
 
 const store = useFavoritesMapStore();
 const items = ref(new Array<NodeData>());
-const options = computed(() => {
-    return items.value.filter((node: NodeData) => !store.find(node.url));
-});
+const options = computed(() => items.value.filter((node: NodeData) => !store.find(node.url)));
 const optionMap = computed(() => {
     const value = new Map<string, NodeData>();
     options.value.forEach((node: NodeData) => {
@@ -37,21 +35,15 @@ onMounted(() => {
 });
 
 const checkList = ref(new Array<string>());
-const checkSet = computed(() => {
-    return new Set(checkList.value);
-})
-const indeterminate = computed(() => {
-    return checkList.value.length > 0 && checkList.value.length < options.value.length;
-});
+const checkSet = computed(() => new Set(checkList.value));
+const indeterminate = computed(() => checkList.value.length > 0 && checkList.value.length < options.value.length);
 const checkAll = computed({
     get: () => checkList.value.length === options.value.length,
-    set: (ok: boolean) => {
+    set(ok: boolean) {
         checkList.value = options.value.map((node: NodeData) => node.url).filter(() => indeterminate.value || ok);
     }
 });
-const selectedOptions = computed(() => {
-    return checkList.value.map((url: string) => optionMap.value.get(url)!);
-});
+const selectedOptions = computed(() => checkList.value.map((url: string) => optionMap.value.get(url)!));
 function handleClickOK() {
     const message: ImportMessage = {
         action: Action.Import,
@@ -106,8 +98,7 @@ function handleClickSwitch() {
 @use "@/assets/styles/common.scss";
 
 .header {
-    @extend %reset;
-    height: common.$bar-height;
+    @include common.block-with-height(common.$bar-height);
 }
 
 .txt-btn {
@@ -122,7 +113,6 @@ function handleClickSwitch() {
 }
 
 .main {
-    @extend %reset;
-    height: calc(100vh - 1.5*common.$bar-height);
+    @include common.block-with-height(calc(100vh - 1.5*common.$bar-height));
 }
 </style>

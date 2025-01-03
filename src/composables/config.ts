@@ -8,20 +8,22 @@ enum ForceType {
 }
 
 function createSimulation(d3: typeof d3Force, nodes: ForceNodeDatum[], edges: ForceEdgeDatum[], keepActive: boolean) {
+    // [BuildLayout]
     const forceLink = d3.forceLink<ForceNodeDatum, ForceEdgeDatum>(edges).id((d: ForceNodeDatum) => d.id);
     const forceValue = 50;
     const simulation = d3
         .forceSimulation(nodes)
         .force(ForceType.Edge, forceLink.distance(forceValue))
         .force(ForceType.Collide, d3.forceCollide(forceValue).strength(0.2))
-        .alphaMin(0.001);
+        .alphaMin(0.001); // [/]
     if (!keepActive) {
+        // [FixLayout]
         const ticker = setInterval(() => {
             if (simulation.alpha() < simulation.alphaMin()) {
                 simulation.force(ForceType.Edge, null).force(ForceType.Collide, null);
                 clearInterval(ticker);
             }
-        }, 50);
+        }, 50); // [/]
     }
     return simulation
 }

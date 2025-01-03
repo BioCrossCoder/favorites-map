@@ -43,3 +43,29 @@ $col-padding-margin-width: 5px;
 $theme-blue: #409EFF;
 
 $border-width: 1px;
+
+@mixin block-with-height($height) {
+    @extend %reset;
+    height: $height;
+}
+
+%graph-tag {
+    @extend %col-margin;
+    width: 100%;
+}
+
+%hover-style {
+    &:hover {
+        color: $theme-blue;
+        cursor: pointer;
+    }
+}
+
+$icon-padding: 2*$border-width;
+
+@mixin icon($height) {
+    @extend %hover-style;
+    padding-left: $icon-padding;
+    padding-right: $icon-padding;
+    height: $height;
+}

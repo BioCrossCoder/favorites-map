@@ -14,14 +14,12 @@ function search(keyword: string, receiver: Ref<NodeData[]>) {
 export const useFavoritesMapStore = defineStore('favorites-map', () => {
     // [LoadData]
     const data = ref(new Array<NodeData>());
-    const monitor = () => search('', data);
-    monitor();
-    storage.watch(storageKey, monitor); // [/]
+    const syncData = () => search('', data);
+    syncData();
+    storage.watch(storageKey, syncData); // [/]
     // [SearchNodesByKeyword]
     function searchProxy(keyword: Ref<string>): ComputedRef<NodeData[]> {
-        return computed(() => {
-            return data.value.filter((node: NodeData) => !keyword.value || node.name.toLowerCase().includes(keyword.value));
-        });
+        return computed(() => data.value.filter((node: NodeData) => !keyword.value || node.name.toLowerCase().includes(keyword.value)));
     } // [/]
     // [FindNodeByID]
     const nodes = computed(() => {
@@ -54,9 +52,7 @@ export const useGraphPositionStore = defineStore('graph-position', () => {
 
 export const useSelectedNodesStore = defineStore('selected-nodes', () => {
     const data = ref(new Set<string>());
-    const value = computed(() => {
-        return Array.from(data.value);
-    });
+    const value = computed(() => Array.from(data.value));
     function add(node: string) {
         data.value.add(node);
     }

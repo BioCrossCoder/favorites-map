@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import Graph from './Graph.vue';
-import SearchList from './SearchList.vue';
-
+import Graph from '../components/Graph.vue';
+import SearchList from '../components/SearchList.vue';
 </script>
 
 <template>
@@ -19,12 +18,10 @@ import SearchList from './SearchList.vue';
 @use "@/assets/styles/common.scss";
 
 .header {
-    @extend %reset;
-    height: calc(50vh - 2*common.$bar-height);
+    @include common.block-with-height(calc(50vh - 2*common.$bar-height));
 }
 
 .footer {
-    @extend %reset;
-    height: calc(50vh + 1.5*common.$bar-height);
+    @include common.block-with-height(calc(50vh + 1.5*common.$bar-height));
 }
 </style>

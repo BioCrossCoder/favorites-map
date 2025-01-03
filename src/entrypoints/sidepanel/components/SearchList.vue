@@ -47,47 +47,32 @@ function handleClickEdit(url: string) {
 @use "@/assets/styles/common.scss";
 
 .header {
-    @extend %reset;
-    height: common.$bar-height;
+    @include common.block-with-height(common.$bar-height);
 }
 
 $row-height: common.$bar-height*0.8;
 
 .row {
-    @extend %reset;
     @extend %container-row-padding;
-    height: $row-height;
+    @include common.block-with-height($row-height);
 }
 
 $block-height: $row-height*8;
 
 .main {
-    @extend %reset;
-    height: $block-height;
+    @include common.block-with-height($block-height);
 }
-
-%hover-style {
-    &:hover {
-        color: common.$theme-blue;
-        cursor: pointer;
-    }
-}
-
-$icon-size: 20px;
-$icon-padding: 2px;
 
 .txt {
     @extend %text-truncate;
     @extend %hover-style;
     align-content: center;
-    width: calc(100% - 2*($icon-size + 2*$icon-padding));
+    $icon-size: 20px;
+    width: calc(100% - 2*($icon-size + 2*common.$icon-padding));
 }
 
 .icon {
-    @extend %hover-style;
+    @include common.icon($row-height);
     align-content: center;
-    height: $row-height;
-    padding-left: $icon-padding;
-    padding-right: $icon-padding;
 }
 </style>

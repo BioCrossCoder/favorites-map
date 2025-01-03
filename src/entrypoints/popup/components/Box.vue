@@ -1,11 +1,6 @@
 <script lang="ts" setup>
 import { useSelectedNodesStore } from "@/composables/store";
-import {
-    Action,
-    UpsertMessage,
-    DeleteMessage,
-    OperationMessage,
-} from "@/interface";
+import { Action, UpsertMessage, DeleteMessage, OperationMessage } from "@/interface";
 import { Close, Search } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 
@@ -74,7 +69,7 @@ function handleClickSelect() {
             </el-row>
         </el-header>
         <el-main class="main">
-            <el-form label-width="auto" label-position="left" class="row-with-margin">
+            <el-form label-width="auto" label-position="left">
                 <el-form-item label="Name">
                     <el-input v-model="title" autofocus />
                 </el-form-item>
@@ -104,8 +99,7 @@ function handleClickSelect() {
 }
 
 .side-row {
-    height: common.$bar-height;
-    @extend %reset;
+    @include common.block-with-height(common.$bar-height);
 }
 
 .main {

@@ -11,13 +11,9 @@ const store = useFavoritesMapStore();
 const data = store.search(ref(''));
 const configs = createGraphConfig(true);
 const position = useGraphPositionStore();
-const selectedNodes = computed(() => {
-    return position.value ? [position.value] : [];
-});
+const selectedNodes = computed(() => position.value ? [position.value] : []);
 const hoverNode = ref('');
-const hintText = computed(() => {
-    return hoverNode.value || position.value;
-})
+const hintText = computed(() => hoverNode.value || position.value);
 
 // Calculate visible nodes
 const view = computed(() => {
@@ -142,8 +138,7 @@ function handleMouseLeaveStar() {
 $header-height: 2*common.$bar-height;
 
 .header {
-    @extend %reset;
-    height: $header-height;
+    @include common.block-with-height($header-height);
 }
 
 .row {
@@ -151,8 +146,7 @@ $header-height: 2*common.$bar-height;
 }
 
 .main {
-    @extend %reset;
-    height: calc(100% - $header-height);
+    @include common.block-with-height(calc(100% - $header-height));
 }
 
 #graph {
@@ -163,8 +157,7 @@ $header-height: 2*common.$bar-height;
 }
 
 .tag {
-    @extend %col-margin;
-    width: 100%;
+    @extend %graph-tag;
     display: inline-block;
     text-align: center;
     align-content: center;
@@ -172,18 +165,7 @@ $header-height: 2*common.$bar-height;
     word-break: break-all;
 }
 
-%hover-style {
-    &:hover {
-        color: common.$theme-blue;
-        cursor: pointer;
-    }
-}
-
 .icon {
-    @extend %hover-style;
-    height: 0.8*common.$bar-height;
-    $icon-padding: 2px;
-    padding-left: $icon-padding;
-    padding-right: $icon-padding;
+    @include common.icon(0.8*common.$bar-height);
 }
 </style>

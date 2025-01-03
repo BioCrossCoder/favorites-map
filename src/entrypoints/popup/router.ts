@@ -1,13 +1,13 @@
-import Box from './components/Box.vue';
-import Graph from './components/Graph.vue';
+import HomePage from './pages/Home.vue';
+import SearchPage from './pages/Search.vue';
 
 export const routes = [
     {
         path: '/',
-        component: Box,
+        component: HomePage,
     },
     {
         path: '/search',
-        component: Graph,
+        component: SearchPage,
     }
 ]

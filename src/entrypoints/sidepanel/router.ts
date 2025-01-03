@@ -1,13 +1,13 @@
-import Board from "./components/Board.vue";
-import OptionList from "./components/OptionList.vue";
+import HomePage from "./pages/Home.vue";
+import ImportPage from "./pages/Import.vue";
 
 export const routes = [
     {
         path: '/',
-        component: Board
+        component: HomePage
     },
     {
         path: '/import',
-        component: OptionList
+        component: ImportPage
     }
 ];
