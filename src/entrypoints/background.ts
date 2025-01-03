@@ -125,6 +125,14 @@ class Graph {
     public select(url: string): Node | null {
         return data[url] || null;
     }
+    public import(nodes: Node[]) {
+        for (const node of nodes) {
+            const currentNode: Node = data[node.url] || new Node(node.name, node.url, new Set());
+            this.updateRelations(currentNode, node);
+            data[node.url] = node;
+        }
+        GraphStorage.dump();
+    }
 }
 
 function buildResponse(data: Array<Node | null>): NodeData[] {
@@ -180,6 +188,14 @@ export default defineBackground(() => {
                     const node: Node | null = Graph.instance.select(message.data);
                     const result: NodeData[] = buildResponse([node]);
                     sendResponse({ result });
+                }
+                break;
+            case Action.Import:
+                {
+                    const nodes: Node[] = message.data.map((nodeData: NodeData) => {
+                        return new Node(nodeData.name, nodeData.url, new Set(nodeData.relatedNodes));
+                    });
+                    Graph.instance.import(nodes);
                 }
                 break;
         }

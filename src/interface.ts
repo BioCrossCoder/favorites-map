@@ -1,7 +1,7 @@
 export interface NodeData {
-    name: string;
-    url: string;
-    relatedNodes: string[];
+    name: string,
+    url: string,
+    relatedNodes: string[],
 }
 
 export const enum Action {
@@ -9,32 +9,39 @@ export const enum Action {
     Delete,
     Search,
     Select,
+    Import,
 }
 
 export type UpsertMessage = {
-    action: Action.Upsert;
-    data: NodeData;
+    action: Action.Upsert,
+    data: NodeData,
 }
 
 export type DeleteMessage = {
-    action: Action.Delete;
-    data: string;
+    action: Action.Delete,
+    data: string,
 }
 
 export type SearchMessage = {
-    action: Action.Search;
-    data: string;
+    action: Action.Search,
+    data: string,
 }
 
 export type SelectMessage = {
     action: Action.Select,
-    data: string;
+    data: string,
 }
 
-export type OperationMessage = UpsertMessage | DeleteMessage | SearchMessage | SelectMessage;
+export type ImportMessage = {
+    action: Action.Import,
+    data: NodeData[],
+}
+
+
+export type OperationMessage = UpsertMessage | DeleteMessage | SearchMessage | SelectMessage | ImportMessage;
 
 export type SearchResultMessage = {
-    result: NodeData[];
+    result: NodeData[],
 }
 
 export const storageKey: `local:${string}` = 'local:favorites_map';

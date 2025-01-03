@@ -5,22 +5,28 @@
 
 $bar-height: 40px;
 
+$row-padding-margin-width: 10px;
+
 %container-row-padding {
-    $padding-width: 10px;
-    padding-left: $padding-width;
-    padding-right: $padding-width;
+    padding-left: $row-padding-margin-width;
+    padding-right: $row-padding-margin-width;
 }
 
-$row-padding-margin-width: 5px;
-
-%container-col-padding {
-    padding-top: $row-padding-margin-width;
-    padding-bottom: $row-padding-margin-width;
-}
+$col-padding-margin-width: 5px;
 
 %row-margin {
-    margin-top: $row-padding-margin-width;
-    margin-bottom: $row-padding-margin-width;
+    margin-left: $col-padding-margin-width;
+    margin-right: $col-padding-margin-width;
+}
+
+%container-col-padding {
+    padding-top: $col-padding-margin-width;
+    padding-bottom: $col-padding-margin-width;
+}
+
+%col-margin {
+    margin-top: $col-padding-margin-width;
+    margin-bottom: $col-padding-margin-width;
 }
 
 %fill-container {

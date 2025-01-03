@@ -52,7 +52,7 @@ const eventHandlers: vNG.EventHandlers = {
         }
     },
     'node:pointerover': ({ node }) => {
-        hoverNode.value = store.find(node).name;
+        hoverNode.value = store.find(node)!.name;
     },
     'node:pointerout': () => {
         hoverNode.value = '';
@@ -113,7 +113,7 @@ $header-height: 2*common.$bar-height;
 }
 
 .tag {
-    @extend %row-margin;
+    @extend %col-margin;
     width: 100%;
 }
 </style>

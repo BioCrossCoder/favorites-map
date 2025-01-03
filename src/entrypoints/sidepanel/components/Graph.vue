@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import { createGraphConfig } from '@/composables/config';
 import { useFavoritesMapStore, useGraphPositionStore } from '@/composables/store';
+import { NodeData } from '@/interface';
+import { Download, Upload, Star, StarFilled } from '@element-plus/icons-vue';
 import * as vNG from 'v-network-graph';
+import { useRouter } from 'vue-router';
 
 // Load data and init states
 const store = useFavoritesMapStore();
@@ -19,7 +22,7 @@ const hintText = computed(() => {
 // Calculate visible nodes
 const view = computed(() => {
     if (position.value) {
-        const center = store.find(position.value);
+        const center = store.find(position.value) as NodeData;
         return center.relatedNodes.concat(center.url).map(store.find);
     }
     return data.value;
@@ -29,7 +32,7 @@ const view = computed(() => {
 const nodes = computed<Record<string, vNG.Node>>(() => {
     const nodeMap = {} as Record<string, vNG.Node>;
     for (const node of view.value) {
-        nodeMap[node.url] = { name: node.name };
+        nodeMap[node!.url] = { name: node!.name };
     }
     return nodeMap;
 });
@@ -39,9 +42,9 @@ const edges = computed<Record<string, vNG.Edge>>(() => {
     const edgeMap = {} as Record<string, vNG.Edge>;
     let count: number = 0;
     for (const node of view.value) {
-        for (const neighbor of node.relatedNodes) {
+        for (const neighbor of node!.relatedNodes) {
             edgeMap[String(++count)] = {
-                source: node.url,
+                source: node!.url,
                 target: neighbor,
             };
         }
@@ -55,7 +58,7 @@ const eventHandlers: vNG.EventHandlers = {
         position.set(node);
     },
     'node:pointerover': ({ node }) => {
-        hoverNode.value = store.find(node).name;
+        hoverNode.value = store.find(node)!.name;
     },
     'node:pointerout': () => {
         hoverNode.value = '';
@@ -75,15 +78,52 @@ const graph = ref<vNG.Instance>();
 watch([nodes, edges], async () => {
     setTimeout(graph.value!.panToCenter, 0);
 });
+function handleClickUpload() {
+
+}
+function handleClickDownload() {
+
+}
+const hoverStar = ref(false);
+const router = useRouter();
+function handleClickStar() {
+    router.push({
+        path: '/import'
+    });
+}
+function handleMouseEnterStar() {
+    hoverStar.value = true;
+}
+function handleMouseLeaveStar() {
+    hoverStar.value = false;
+}
 </script>
 
 <template>
     <el-container class="container">
         <el-header class="header">
-            <el-button type="primary" @click="handleClickVisit">Visit</el-button>
-            <el-button @click="handleClickOverview">Overview</el-button>
-            <br />
-            <el-tag size="large" class="tag">{{ hintText }}</el-tag>
+            <el-row justify="space-between" class="row">
+                <el-col :span="12">
+                    <el-button type="primary" @click="handleClickVisit">Visit</el-button>
+                    <el-button @click="handleClickOverview">Overview</el-button>
+                </el-col>
+                <el-col :span="5.5">
+                    <el-icon size="20" class="icon" @click="handleClickUpload">
+                        <Upload />
+                    </el-icon>
+                    <el-icon size="20" class="icon" @click="handleClickDownload">
+                        <Download />
+                    </el-icon>
+                    <el-icon size="20" class="icon" @click="handleClickStar" @mouseenter="handleMouseEnterStar"
+                        @mouseleave="handleMouseLeaveStar">
+                        <StarFilled v-if="hoverStar" />
+                        <Star v-else />
+                    </el-icon>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-tag size="large" class="tag">{{ hintText }}</el-tag>
+            </el-row>
         </el-header>
         <el-main class="main">
             <v-network-graph id="graph" :nodes="nodes" :edges="edges" :selectedNodes="selectedNodes" :configs="configs"
@@ -106,6 +146,10 @@ $header-height: 2*common.$bar-height;
     height: $header-height;
 }
 
+.row {
+    height: common.$bar-height;
+}
+
 .main {
     @extend %reset;
     height: calc(100% - $header-height);
@@ -119,12 +163,27 @@ $header-height: 2*common.$bar-height;
 }
 
 .tag {
-    @extend %row-margin;
+    @extend %col-margin;
     width: 100%;
     display: inline-block;
     text-align: center;
     align-content: center;
     white-space: normal;
     word-break: break-all;
+}
+
+%hover-style {
+    &:hover {
+        color: common.$theme-blue;
+        cursor: pointer;
+    }
+}
+
+.icon {
+    @extend %hover-style;
+    height: 0.8*common.$bar-height;
+    $icon-padding: 2px;
+    padding-left: $icon-padding;
+    padding-right: $icon-padding;
 }
 </style>

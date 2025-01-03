@@ -31,8 +31,8 @@ export const useFavoritesMapStore = defineStore('favorites-map', () => {
         }
         return collections;
     });
-    function find(id: string): NodeData {
-        return nodes.value[id];
+    function find(id: string): NodeData | null {
+        return nodes.value[id] || null;
     } // [/]
     // [ExportAPI]
     return {
