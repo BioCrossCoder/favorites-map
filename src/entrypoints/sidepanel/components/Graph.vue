@@ -74,12 +74,6 @@ const graph = ref<vNG.Instance>();
 watch([nodes, edges], async () => {
     setTimeout(graph.value!.panToCenter, 0);
 });
-function handleClickUpload() {
-
-}
-function handleClickDownload() {
-
-}
 const hoverStar = ref(false);
 const router = useRouter();
 function handleClickStar() {
@@ -104,12 +98,6 @@ function handleMouseLeaveStar() {
                     <el-button @click="handleClickOverview">Overview</el-button>
                 </el-col>
                 <el-col :span="5.5">
-                    <el-icon size="20" class="icon" @click="handleClickUpload">
-                        <Upload />
-                    </el-icon>
-                    <el-icon size="20" class="icon" @click="handleClickDownload">
-                        <Download />
-                    </el-icon>
                     <el-icon size="20" class="icon" @click="handleClickStar" @mouseenter="handleMouseEnterStar"
                         @mouseleave="handleMouseLeaveStar">
                         <StarFilled v-if="hoverStar" />

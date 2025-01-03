@@ -14,9 +14,6 @@ const position = useGraphPositionStore();
 function handleClickView(url: string) {
     position.set(url);
 }
-function handleClickEdit(url: string) {
-
-}
 </script>
 
 <template>
@@ -34,9 +31,6 @@ function handleClickEdit(url: string) {
                 </el-tooltip>
                 <el-icon size="20" class="icon" @click="() => handleClickView(node.url)">
                     <Location />
-                </el-icon>
-                <el-icon size="20" class="icon" @click="() => handleClickEdit(node.url)">
-                    <Edit />
                 </el-icon>
             </el-row>
         </el-main>
@@ -68,7 +62,7 @@ $block-height: $row-height*8;
     @extend %hover-style;
     align-content: center;
     $icon-size: 20px;
-    width: calc(100% - 2*($icon-size + 2*common.$icon-padding));
+    width: calc(100% - ($icon-size + 2*common.$icon-padding));
 }
 
 .icon {
