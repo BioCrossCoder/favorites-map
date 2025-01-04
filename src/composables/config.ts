@@ -10,7 +10,7 @@ enum ForceType {
 function createSimulation(d3: typeof d3Force, nodes: ForceNodeDatum[], edges: ForceEdgeDatum[], keepActive: boolean) {
     // [BuildLayout]
     const forceLink = d3.forceLink<ForceNodeDatum, ForceEdgeDatum>(edges).id((d: ForceNodeDatum) => d.id);
-    const forceValue = 50;
+    const forceValue = 30;
     const simulation = d3
         .forceSimulation(nodes)
         .force(ForceType.Edge, forceLink.distance(forceValue))
@@ -37,9 +37,12 @@ export function createGraphConfig(keepActive: boolean) {
                 directionAutoAdjustment: true,
                 text: (n: vNG.Node) => n.name!.slice(0, 5)
             },
+            normal: {
+                radius: 10
+            },
             hover: {
                 color: '#F56C6C',
-                radius: 20
+                radius: 12
             }
         },
         edge: {
