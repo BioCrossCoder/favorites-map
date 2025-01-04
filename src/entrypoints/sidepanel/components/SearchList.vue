@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useGraphPositionStore } from '@/composables/store';
+import { useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
 import { Search, Edit, Location } from '@element-plus/icons-vue';
 
 const keyword = ref('')

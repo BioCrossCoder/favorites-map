@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useSelectedNodesStore } from "@/composables/store";
+import { useFavoritesMapStore, useSelectedNodesStore } from "@/composables/store";
 import { Action, UpsertMessage, DeleteMessage, OperationMessage } from "@/interface";
 import { Close, Search } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
