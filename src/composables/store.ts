@@ -14,9 +14,10 @@ function search(keyword: string, receiver: Ref<NodeData[]>) {
 export const useFavoritesMapStore = defineStore('favorites-map', () => {
     // [LoadData]
     const data = ref(new Array<NodeData>());
-    const syncData = () => search('', data);
-    syncData();
-    storage.watch(storageKey, syncData); // [/]
+    const loadData = () => search('', data);
+    loadData();
+    storage.watch(storageKey, loadData);
+    setInterval(loadData, 1000); // [/]
     // [SearchNodesByKeyword]
     function searchProxy(keyword: Ref<string>): ComputedRef<NodeData[]> {
         return computed(() => data.value.filter((node: NodeData) => !keyword.value || node.name.toLowerCase().includes(keyword.value)));
