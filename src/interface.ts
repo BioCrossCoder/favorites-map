@@ -8,7 +8,6 @@ export const enum Action {
     Upsert,
     Delete,
     Search,
-    Select,
     Import,
 }
 
@@ -27,18 +26,13 @@ export type SearchMessage = {
     data: string,
 }
 
-export type SelectMessage = {
-    action: Action.Select,
-    data: string,
-}
-
 export type ImportMessage = {
     action: Action.Import,
     data: NodeData[],
 }
 
 
-export type OperationMessage = UpsertMessage | DeleteMessage | SearchMessage | SelectMessage | ImportMessage;
+export type OperationMessage = UpsertMessage | DeleteMessage | SearchMessage | ImportMessage;
 
 export type SearchResultMessage = {
     result: NodeData[],

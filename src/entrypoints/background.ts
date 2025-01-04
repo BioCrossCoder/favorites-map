@@ -125,9 +125,6 @@ class Graph {
         } // [/]
         return result;
     }
-    public select(url: string): Node | null {
-        return data[url] || null;
-    }
     public import(nodes: Node[]) {
         for (const node of nodes) {
             const currentNode: Node = data[node.url] || new Node(node.name, node.url, new Set());
@@ -183,13 +180,6 @@ export default defineBackground(() => {
                 {
                     const nodes: Set<Node> = Graph.instance.search(message.data);
                     const result: NodeData[] = buildResponse(Array.from(nodes));
-                    sendResponse({ result });
-                }
-                break;
-            case Action.Select:
-                {
-                    const node: Node | null = Graph.instance.select(message.data);
-                    const result: NodeData[] = buildResponse([node]);
                     sendResponse({ result });
                 }
                 break;
