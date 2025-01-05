@@ -156,6 +156,12 @@ type GraphData = {
     edges: [string, string][]
 }
 
+function keepAlive() {
+    setInterval(() => {
+        browser.runtime.sendMessage('')
+    }, 1000);
+}
+
 export default defineBackground(() => {
     browser.runtime.onStartup.addListener(() => {
         storage.defineItem(storageKey, {
@@ -205,5 +211,6 @@ export default defineBackground(() => {
                 }
                 break;
         }
-    })
+    });
+    keepAlive();
 });
