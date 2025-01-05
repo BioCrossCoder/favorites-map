@@ -1,4 +1,4 @@
-import { Action, NodeData, OperationMessage, SearchResultMessage, storageKey } from "@/interface";
+import { Action, isOperationMessage, NodeData, OperationMessage, SearchResultMessage, storageKey } from "@/interface";
 
 class Node {
     public url: string;
@@ -167,6 +167,9 @@ export default defineBackground(() => {
     });
     browser.runtime.onInstalled.addListener(GraphStorage.load);
     browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResultMessage) => void) => {
+        if (!isOperationMessage(message)) {
+            return;
+        }
         switch (message.action) {
             case Action.Upsert:
                 {
