@@ -155,7 +155,7 @@ type GraphData = {
 
 function keepAlive() {
     setInterval(() => {
-        browser.runtime.sendMessage('')
+        browser.runtime.sendMessage('').catch(() => { });
     }, 1000);
 }
 
