@@ -7,7 +7,7 @@ enum ForceType {
     Collide = 'collide'
 }
 
-function createSimulation(d3: typeof d3Force, nodes: ForceNodeDatum[], edges: ForceEdgeDatum[], keepActive: boolean) {
+function createSimulation(d3: typeof d3Force, nodes: ForceNodeDatum[], edges: ForceEdgeDatum[]) {
     // [BuildLayout]
     const forceLink = d3.forceLink<ForceNodeDatum, ForceEdgeDatum>(edges).id((d: ForceNodeDatum) => d.id);
     const forceValue = 30;
@@ -16,19 +16,10 @@ function createSimulation(d3: typeof d3Force, nodes: ForceNodeDatum[], edges: Fo
         .force(ForceType.Edge, forceLink.distance(forceValue))
         .force(ForceType.Collide, d3.forceCollide(forceValue).strength(0.2))
         .alphaMin(0.001); // [/]
-    if (!keepActive) {
-        // [FixLayout]
-        const ticker = setInterval(() => {
-            if (simulation.alpha() < simulation.alphaMin()) {
-                simulation.force(ForceType.Edge, null).force(ForceType.Collide, null);
-                clearInterval(ticker);
-            }
-        }, 50); // [/]
-    }
     return simulation
 }
 
-export function createGraphConfig(keepActive: boolean) {
+export function createGraphConfig() {
     return vNG.defineConfigs({
         node: {
             selectable: true,
@@ -52,7 +43,7 @@ export function createGraphConfig(keepActive: boolean) {
         },
         view: {
             layoutHandler: new ForceLayout({
-                createSimulation: (d3, nodes, edges) => createSimulation(d3, nodes, edges, keepActive)
+                createSimulation
             })
         }
     });
