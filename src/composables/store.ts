@@ -17,7 +17,9 @@ export const useFavoritesMapStore = defineStore('favorites-map', () => {
     const loadData = () => search('', data);
     loadData();
     storage.watch(storageKey, loadData);
-    setInterval(loadData, 1000); // [/]
+    setInterval(() => {
+        browser.runtime.sendMessage('');
+    }, 1000); // [/]
     // [SearchNodesByKeyword]
     function searchProxy(keyword: Ref<string>): ComputedRef<NodeData[]> {
         return computed(() => data.value.filter((node: NodeData) => !keyword.value || node.name.toLowerCase().includes(keyword.value)));

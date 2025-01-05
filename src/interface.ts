@@ -34,6 +34,10 @@ export type ImportMessage = {
 
 export type OperationMessage = UpsertMessage | DeleteMessage | SearchMessage | ImportMessage;
 
+export function isOperationMessage(message: any): message is OperationMessage {
+    return Object.hasOwn(message, 'action') && Object.hasOwn(message, 'data');
+}
+
 export type SearchResultMessage = {
     result: NodeData[],
 }
