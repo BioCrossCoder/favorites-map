@@ -11,7 +11,7 @@ class Node {
     }
 }
 
-let data = {} as Record<string, Node>;
+const data = {} as Record<string, Node>;
 
 class GraphStorage {
     public static async load(): Promise<void> {

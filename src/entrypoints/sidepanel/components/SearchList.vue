@@ -2,7 +2,7 @@
 import { useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
 import { Search, Edit, Location } from '@element-plus/icons-vue';
 
-const keyword = ref('')
+const keyword = ref('');
 const store = useFavoritesMapStore();
 const items = store.search(keyword);
 

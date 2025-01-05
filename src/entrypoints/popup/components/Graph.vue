@@ -3,11 +3,13 @@ import { useFavoritesMapStore, useSelectedNodesStore } from '@/composables/store
 import * as vNG from 'v-network-graph';
 import { useRouter } from 'vue-router';
 import { createGraphConfig } from '@/composables/config';
+import { Search } from '@element-plus/icons-vue';
 
 // Load data and init states
+const keyword = ref('');
 const store = useFavoritesMapStore();
-const data = store.search(ref(''));
-const configs = createGraphConfig(false);
+const data = store.search(keyword);
+const configs = createGraphConfig();
 const selectedNodes = useSelectedNodesStore();
 const selectedNodesOld = ref(new Array<string>());
 onMounted(() => {
@@ -74,10 +76,18 @@ function handleClickReset() {
 <template>
     <el-container class="container">
         <el-header class="header">
-            <el-button type="primary" @click="handleClickOK">OK</el-button>
-            <el-button @click="handleClickReset">Reset</el-button>
-            <br />
-            <el-tag size="large" class="tag">{{ hoverNode }}</el-tag>
+            <el-row>
+                <el-col :span="8">
+                    <el-button type="primary" @click="handleClickOK">OK</el-button>
+                    <el-button @click="handleClickReset">Reset</el-button>
+                </el-col>
+                <el-col :span="8">
+                    <el-input v-model="keyword" :prefix-icon="Search" class="input" />
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-tag size="large" class="tag">{{ hoverNode }}</el-tag>
+            </el-row>
         </el-header>
         <el-main class="main">
             <v-network-graph id="graph" :nodes="nodes" :edges="edges" :selectedNodes="selectedNodes.value"
@@ -98,6 +108,10 @@ $header-height: 2*common.$bar-height;
 
 .header {
     @include common.block-with-height($header-height);
+}
+
+.input {
+    display: inline-block;
 }
 
 .main {
