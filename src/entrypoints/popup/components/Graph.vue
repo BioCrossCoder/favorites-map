@@ -9,7 +9,7 @@ import { Search } from '@element-plus/icons-vue';
 const keyword = ref('');
 const store = useFavoritesMapStore();
 const data = store.search(keyword);
-const configs = createGraphConfig();
+const configs = computed(() => createGraphConfig(keyword.value));
 const selectedNodes = useSelectedNodesStore();
 const selectedNodesOld = ref(new Array<string>());
 onMounted(() => {

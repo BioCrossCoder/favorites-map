@@ -9,8 +9,8 @@ import { useRouter } from 'vue-router';
 // Load data and init states
 const store = useFavoritesMapStore();
 const data = store.search(ref(''));
-const configs = createGraphConfig();
 const position = useGraphPositionStore();
+const configs = computed(() => createGraphConfig(position.value));
 const selectedNodes = computed(() => position.value ? [position.value] : []);
 const hoverNode = ref('');
 const hintText = computed(() => hoverNode.value || position.value);
