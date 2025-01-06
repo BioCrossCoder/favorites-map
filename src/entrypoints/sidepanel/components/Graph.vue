@@ -13,7 +13,7 @@ const data = store.search(ref(''));
 const position = useGraphPositionStore();
 const configs = computed(() => {
     data.value; // trigger re-render when data changes
-    return createGraphConfig(position.value)
+    return createGraphConfig(position.value);
 });
 const selectedNodes = computed(() => position.value ? [position.value] : []);
 const hoverNode = ref('');
@@ -52,17 +52,23 @@ const edges = computed<Record<string, vNG.Edge>>(() => {
     return edgeMap;
 });
 
+function handleMouseEnter(message: string) {
+    hoverNode.value = message;
+}
+
+function handleMouseLeave() {
+    hoverNode.value = '';
+}
+
 // Interaction callbacks
 const eventHandlers: vNG.EventHandlers = {
     'node:click': ({ node }) => {
         position.set(node);
     },
     'node:pointerover': ({ node }) => {
-        hoverNode.value = store.find(node)!.name;
+        handleMouseEnter(store.find(node)!.name);
     },
-    'node:pointerout': () => {
-        hoverNode.value = '';
-    }
+    'node:pointerout': handleMouseLeave,
 }
 function handleClickVisit() {
     if (!position.value) {
@@ -93,9 +99,11 @@ function handleClickStar() {
 }
 function handleMouseEnterStar() {
     hoverStar.value = true;
+    handleMouseEnter('Migrate from Favorites');
 }
 function handleMouseLeaveStar() {
     hoverStar.value = false;
+    handleMouseLeave();
 }
 </script>
 
@@ -108,10 +116,12 @@ function handleMouseLeaveStar() {
                     <el-button @click="handleClickOverview">Overview</el-button>
                 </el-col>
                 <el-col :span="5.5">
-                    <el-icon size="20" class="icon" @click="handleClickUpload">
+                    <el-icon size="20" class="icon" @click="handleClickUpload"
+                        @mouseenter="() => handleMouseEnter('Import')" @mouseleave="handleMouseLeave">
                         <Upload />
                     </el-icon>
-                    <el-icon size="20" class="icon" @click="handleClickDownload">
+                    <el-icon size="20" class="icon" @click="handleClickDownload"
+                        @mouseenter="() => handleMouseEnter('Export')" @mouseleave="handleMouseLeave">
                         <Download />
                     </el-icon>
                     <el-icon size="20" class="icon" @click="handleClickStar" @mouseenter="handleMouseEnterStar"
