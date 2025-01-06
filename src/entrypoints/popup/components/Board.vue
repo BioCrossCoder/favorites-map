@@ -106,7 +106,7 @@ function handleClickDelete() {
 <template>
     <el-container class="container">
         <el-header class="header">
-            <EditHeader title="Edit Favorites Map" />
+            <EditHeader title="Edit Favorites Map" class="bar" />
             <el-form label-width="auto" label-position="left">
                 <el-form-item label="Name">
                     <el-input v-model="title" autofocus />
@@ -152,6 +152,10 @@ function handleClickDelete() {
 
 .header {
     @include common.block-with-height(5*common.$bar-height);
+}
+
+.bar {
+    margin-bottom: common.$col-padding-margin-width;
 }
 
 .input {
