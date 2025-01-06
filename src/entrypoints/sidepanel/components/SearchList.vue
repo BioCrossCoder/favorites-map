@@ -6,15 +6,7 @@ import { Search, Edit, Location } from '@element-plus/icons-vue';
 const keyword = ref('');
 const store = useFavoritesMapStore();
 const items = store.search(keyword);
-
-function handleClickLink(url: string) {
-    browser.tabs.update({ url });
-}
-
 const position = useGraphPositionStore();
-function handleClickView(url: string) {
-    position.set(url);
-}
 function handleClickEdit(url: string) {
     const urlPrefix: string = browser.runtime.getURL('/popup.html');
     const urlPath: string = `${urlPrefix}#/edit?id=${encodeURIComponent(url)}`;
@@ -35,11 +27,11 @@ function handleClickEdit(url: string) {
             <el-row v-for="node in items" class="row">
                 <el-tooltip placement="bottom-end">
                     <template #content>{{ node.name }}<br />{{ node.url }}</template>
-                    <el-text class="txt" @click="() => handleClickLink(node.url)" :icon="Search">
+                    <el-text class="txt" @click="() => browser.tabs.update({ url: node.url })" :icon="Search">
                         {{ node.name }}
                     </el-text>
                 </el-tooltip>
-                <el-icon size="20" class="icon" @click="() => handleClickView(node.url)">
+                <el-icon size="20" class="icon" @click="() => position.set(node.url)">
                     <Location />
                 </el-icon>
                 <el-icon size="20" class="icon" @click="() => handleClickEdit(node.url)">

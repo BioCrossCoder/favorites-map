@@ -2,6 +2,7 @@
 import LayoutMain from '@/components/LayoutMain.vue';
 import { createGraphConfig } from '@/composables/config';
 import { useFavoritesMapStore, useGraphPositionStore } from '@/composables/store';
+import { buildGraphEdges, buildGraphNodes, handleMouseEnter, handleMouseLeave } from '@/composables/utils';
 import { NodeData } from '@/interface';
 import { Download, Upload, Star, StarFilled } from '@element-plus/icons-vue';
 import * as vNG from 'v-network-graph';
@@ -19,57 +20,37 @@ const selectedNodes = computed(() => position.value ? [position.value] : []);
 const hoverNode = ref('');
 const hintText = computed(() => hoverNode.value || position.value);
 
-// Calculate visible nodes
+// Build graph
 const view = computed(() => {
     if (position.value) {
         const center = store.find(position.value) as NodeData;
-        return center.relatedNodes.concat(center.url).map(store.find);
+        return center.relatedNodes.concat(center.url).map((node: string) => store.find(node)!);
     }
     return data.value;
 });
-
-// Build nodes
-const nodes = computed<Record<string, vNG.Node>>(() => {
-    const nodeMap = {} as Record<string, vNG.Node>;
-    for (const node of view.value) {
-        nodeMap[node!.url] = { name: node!.name };
-    }
-    return nodeMap;
-});
-
-// Build edges
-const edges = computed<Record<string, vNG.Edge>>(() => {
-    const edgeMap = {} as Record<string, vNG.Edge>;
-    let count: number = 0;
-    for (const node of view.value) {
-        for (const neighbor of node!.relatedNodes) {
-            edgeMap[String(++count)] = {
-                source: node!.url,
-                target: neighbor,
-            };
-        }
-    }
-    return edgeMap;
-});
-
-function handleMouseEnter(message: string) {
-    hoverNode.value = message;
-}
-
-function handleMouseLeave() {
-    hoverNode.value = '';
-}
-
-// Interaction callbacks
+const nodes = buildGraphNodes(view);
+const edges = buildGraphEdges(view);
 const eventHandlers: vNG.EventHandlers = {
     'node:click': ({ node }) => {
         position.set(node);
     },
     'node:pointerover': ({ node }) => {
-        handleMouseEnter(store.find(node)!.name);
+        handleMouseEnter(store.find(node)!.name, hoverNode);
     },
-    'node:pointerout': handleMouseLeave,
+    'node:pointerout': () => {
+        handleMouseLeave(hoverNode)
+    },
 }
+const graph = ref<vNG.Instance>();
+onMounted(() => {
+    const observer = watch(graph, () => {
+        if (graph.value) {
+            watch(view, graph.value.panToCenter);
+            observer.stop();
+        }
+    })
+});
+
 function handleClickVisit() {
     if (!position.value) {
         alert('No Target Node Selected')
@@ -77,33 +58,30 @@ function handleClickVisit() {
         browser.tabs.update({ url: position.value });
     }
 }
-function handleClickOverview() {
-    position.set('');
+function handleMouseLeaveHover() {
+    handleMouseLeave(hoverNode);
 }
-const graph = ref<vNG.Instance>();
-watch([nodes, edges], async () => {
-    setTimeout(graph.value!.panToCenter, 0);
-});
 function handleClickUpload() {
 
+}
+function handleMouseEnterUpload() {
+    handleMouseEnter('Import', hoverNode);
 }
 function handleClickDownload() {
 
 }
+function handleMouseEnterDownload() {
+    handleMouseEnter('Export', hoverNode);
+}
 const hoverStar = ref(false);
 const router = useRouter();
-function handleClickStar() {
-    router.push({
-        path: '/import'
-    });
-}
 function handleMouseEnterStar() {
     hoverStar.value = true;
-    handleMouseEnter('Migrate from Favorites');
+    handleMouseEnter('Migrate from Favorites', hoverNode);
 }
 function handleMouseLeaveStar() {
     hoverStar.value = false;
-    handleMouseLeave();
+    handleMouseLeaveHover();
 }
 </script>
 
@@ -113,19 +91,19 @@ function handleMouseLeaveStar() {
             <el-row justify="space-between" class="row">
                 <el-col :span="12">
                     <el-button type="primary" @click="handleClickVisit">Visit</el-button>
-                    <el-button @click="handleClickOverview">Overview</el-button>
+                    <el-button @click="() => position.set('')">Overview</el-button>
                 </el-col>
                 <el-col :span="5.5">
-                    <el-icon size="20" class="icon" @click="handleClickUpload"
-                        @mouseenter="() => handleMouseEnter('Import')" @mouseleave="handleMouseLeave">
+                    <el-icon size="20" class="icon" @click="handleClickUpload" @mouseenter="handleMouseEnterUpload"
+                        @mouseleave="handleMouseLeaveHover">
                         <Upload />
                     </el-icon>
-                    <el-icon size="20" class="icon" @click="handleClickDownload"
-                        @mouseenter="() => handleMouseEnter('Export')" @mouseleave="handleMouseLeave">
+                    <el-icon size="20" class="icon" @click="handleClickDownload" @mouseenter="handleMouseEnterDownload"
+                        @mouseleave="handleMouseLeaveHover">
                         <Download />
                     </el-icon>
-                    <el-icon size="20" class="icon" @click="handleClickStar" @mouseenter="handleMouseEnterStar"
-                        @mouseleave="handleMouseLeaveStar">
+                    <el-icon size="20" class="icon" @click="() => router.push({ path: '/import' })"
+                        @mouseenter="handleMouseEnterStar" @mouseleave="handleMouseLeaveStar">
                         <StarFilled v-if="hoverStar" />
                         <Star v-else />
                     </el-icon>
