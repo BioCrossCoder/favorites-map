@@ -16,7 +16,13 @@ function handleClickView(url: string) {
     position.set(url);
 }
 function handleClickEdit(url: string) {
-
+    const urlPrefix: string = browser.runtime.getURL('/popup.html');
+    const urlPath: string = `${urlPrefix}#/edit?id=${encodeURIComponent(url)}`;
+    browser.action.setPopup({ popup: urlPath }).then(() => {
+        browser.action.openPopup().finally(() => {
+            browser.action.setPopup({ popup: urlPrefix });
+        });
+    });
 }
 </script>
 
@@ -25,7 +31,7 @@ function handleClickEdit(url: string) {
         <el-header class="header">
             <el-input v-model="keyword" :prefix-icon="Search" />
         </el-header>
-        <LayoutMain>
+        <LayoutMain class="main">
             <el-row v-for="node in items" class="row">
                 <el-tooltip placement="bottom-end">
                     <template #content>{{ node.name }}<br />{{ node.url }}</template>
@@ -58,7 +64,9 @@ $row-height: common.$bar-height*0.8;
     @include common.block-with-height($row-height);
 }
 
-$block-height: $row-height*8;
+.main {
+    height: $row-height*8;
+}
 
 .txt {
     @extend %text-truncate;
