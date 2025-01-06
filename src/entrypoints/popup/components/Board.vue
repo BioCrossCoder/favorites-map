@@ -1,14 +1,12 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router';
 import { useFavoritesMapStore, useSelectedNodesStore } from '@/composables/store';
-import * as vNG from 'v-network-graph';
 import { createGraphConfig } from '@/composables/config';
 import EditHeader from '../components/EditHeader.vue';
 import LayoutMain from '@/components/LayoutMain.vue';
-import { Action, DeleteMessage, OperationMessage, UpsertMessage } from '@/interface';
 import { Search } from '@element-plus/icons-vue';
+import { buildSelectGraph, doDelete, doUpsert, storeGraphSelectedNodes } from '@/composables/utils';
 
-// Load data and init states
 const route = useRoute();
 const title = ref('');
 const id: string = decodeURIComponent(route.query.id as string);
@@ -17,90 +15,20 @@ const keyword = ref('');
 const data = store.search(keyword);
 const configs = computed(() => createGraphConfig(keyword.value));
 const selectedNodes = useSelectedNodesStore();
-const selectedNodesOld = ref(new Array<string>());
-
+const { oldState: selectedNodesOld, reset: handleClickReset } = storeGraphSelectedNodes();
 onMounted(() => {
-    setTimeout(() => {
-        const node = store.find(id);
-        title.value = node!.name;
-        selectedNodes.load(node!.relatedNodes);
-        selectedNodesOld.value = Array.from(selectedNodes.value);
-    }, 0);
-});
-const hoverNode = ref('');
-
-// Build nodes
-const nodes = computed<Record<string, vNG.Node>>(() => {
-    const nodeMap = {} as Record<string, vNG.Node>;
-    for (const node of data.value) {
-        nodeMap[node.url] = {
-            name: node.name,
-            active: selectedNodes.has(node.name),
-        };
-    }
-    return nodeMap;
-});
-
-// Build edges
-const edges = computed<Record<string, vNG.Edge>>(() => {
-    const edgeMap = {} as Record<string, vNG.Edge>;
-    let count: number = 0;
-    for (const node of data.value) {
-        for (const neighbor of node.relatedNodes) {
-            edgeMap[String(++count)] = {
-                source: node.url,
-                target: neighbor,
-            };
+    const observer = watch(data, () => {
+        if (data.value.length > 0) {
+            const node = store.find(id);
+            title.value = node!.name;
+            selectedNodes.load(node!.relatedNodes);
+            selectedNodesOld.value = Array.from(selectedNodes.value);
+            observer.stop();
         }
-    }
-    return edgeMap;
+    });
 });
-
-// Interaction callbacks
-const eventHandlers: vNG.EventHandlers = {
-    'node:click': ({ node }) => {
-        if (selectedNodes.has(node)) {
-            selectedNodes.remove(node);
-        } else {
-            selectedNodes.add(node);
-        }
-    },
-    'node:pointerover': ({ node }) => {
-        hoverNode.value = store.find(node)!.name;
-    },
-    'node:pointerout': () => {
-        hoverNode.value = '';
-    },
-    'view:click': () => {
-        selectedNodes.clear();
-    }
-}
-function handleClickReset() {
-    selectedNodes.clear();
-    selectedNodesOld.value.forEach(selectedNodes.add);
-}
-function handleClick(message: OperationMessage) {
-    browser.runtime.sendMessage(message).then(window.close);
-}
+const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(data);
 const canSave = computed<boolean>(() => title.value.trim() !== '');
-function handleClickOK() {
-    const message: UpsertMessage = {
-        action: Action.Upsert,
-        data: {
-            name: title.value,
-            url: id,
-            relatedNodes: Array.from(selectedNodes.value.filter((value: string) => value !== id)),
-        },
-    };
-    handleClick(message);
-}
-function handleClickDelete() {
-    const message: DeleteMessage = {
-        action: Action.Delete,
-        data: id,
-    }
-    handleClick(message);
-}
 </script>
 
 <template>
@@ -133,8 +61,8 @@ function handleClickDelete() {
         </LayoutMain>
         <el-footer class="footer">
             <el-row justify="end">
-                <el-button @click="handleClickOK" type="primary" :disabled="!canSave">Save</el-button>
-                <el-button @click="handleClickDelete">Delete</el-button>
+                <el-button @click="() => doUpsert(title, id)" type="primary" :disabled="!canSave">Save</el-button>
+                <el-button @click="() => doDelete(id)">Delete</el-button>
             </el-row>
         </el-footer>
     </el-container>

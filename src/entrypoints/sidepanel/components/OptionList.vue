@@ -53,9 +53,6 @@ function handleClickOK() {
     browser.runtime.sendMessage(message).then(router.back);
 }
 const router = useRouter();
-function handleClickCancel() {
-    router.back();
-}
 const showURL = ref(false);
 function handleClickSwitch() {
     checkList.value = Array.from(optionMap.value.keys().filter((value: string) => !checkSet.value.has(value)));
@@ -68,7 +65,7 @@ function handleClickSwitch() {
             <el-row justify="space-between">
                 <el-col :span="10">
                     <el-button type="primary" @click="handleClickOK">OK</el-button>
-                    <el-button @click="handleClickCancel">Cancel</el-button>
+                    <el-button @click="router.back">Cancel</el-button>
                 </el-col>
                 <el-col :span="showURL ? 3 : 4">
                     <el-switch v-model="showURL" active-text="url" inactive-text="name" inline-prompt />
