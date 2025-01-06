@@ -4,6 +4,7 @@ import * as vNG from 'v-network-graph';
 import { useRouter } from 'vue-router';
 import { createGraphConfig } from '@/composables/config';
 import { Search } from '@element-plus/icons-vue';
+import LayoutMain from '@/components/LayoutMain.vue';
 
 // Load data and init states
 const keyword = ref('');
@@ -89,10 +90,10 @@ function handleClickReset() {
                 <el-tag size="large" class="tag">{{ hoverNode }}</el-tag>
             </el-row>
         </el-header>
-        <el-main class="main">
+        <LayoutMain>
             <v-network-graph id="graph" :nodes="nodes" :edges="edges" :selectedNodes="selectedNodes.value"
                 :event-handlers="eventHandlers" :configs="configs" />
-        </el-main>
+        </LayoutMain>
     </el-container>
 </template>
 
@@ -112,10 +113,6 @@ $header-height: 2*common.$bar-height;
 
 .input {
     display: inline-block;
-}
-
-.main {
-    @include common.block-with-height(calc(100% - $header-height));
 }
 
 #graph {

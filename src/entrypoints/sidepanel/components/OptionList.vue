@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import LayoutMain from '@/components/LayoutMain.vue';
 import { useFavoritesMapStore } from '@/composables/store';
 import { Action, ImportMessage, NodeData } from '@/interface';
 import { Switch } from '@element-plus/icons-vue';
@@ -84,13 +85,13 @@ function handleClickSwitch() {
                 </el-col>
             </el-row>
         </el-header>
-        <el-main class="main">
+        <LayoutMain class="main">
             <el-checkbox-group v-model="checkList">
                 <el-row v-for="node in options">
                     <el-checkbox :label="showURL ? node.url : node.name" :value="node.url" />
                 </el-row>
             </el-checkbox-group>
-        </el-main>
+        </LayoutMain>
     </el-container>
 </template>
 
@@ -113,6 +114,6 @@ function handleClickSwitch() {
 }
 
 .main {
-    @include common.block-with-height(calc(100vh - 1.5*common.$bar-height));
+    height: calc(100vh - 1.5*common.$bar-height);
 }
 </style>

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import LayoutMain from '@/components/LayoutMain.vue';
 import { useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
 import { Search, Edit, Location } from '@element-plus/icons-vue';
 
@@ -24,7 +25,7 @@ function handleClickEdit(url: string) {
         <el-header class="header">
             <el-input v-model="keyword" :prefix-icon="Search" />
         </el-header>
-        <el-main class="main">
+        <LayoutMain>
             <el-row v-for="node in items" class="row">
                 <el-tooltip placement="bottom-end">
                     <template #content>{{ node.name }}<br />{{ node.url }}</template>
@@ -39,7 +40,7 @@ function handleClickEdit(url: string) {
                     <Edit />
                 </el-icon>
             </el-row>
-        </el-main>
+        </LayoutMain>
     </el-container>
 </template>
 
@@ -58,10 +59,6 @@ $row-height: common.$bar-height*0.8;
 }
 
 $block-height: $row-height*8;
-
-.main {
-    @include common.block-with-height($block-height);
-}
 
 .txt {
     @extend %text-truncate;
