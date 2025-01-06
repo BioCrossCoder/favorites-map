@@ -19,7 +19,7 @@ export const useFavoritesMapStore = defineStore('favorites-map', () => {
     storage.watch(storageKey, loadData); // [/]
     // [SearchNodesByKeyword]
     function searchProxy(keyword: Ref<string>): ComputedRef<NodeData[]> {
-        return computed(() => data.value.filter((node: NodeData) => !keyword.value || node.name.toLowerCase().includes(keyword.value)));
+        return computed(() => data.value.filter((node: NodeData) => !keyword.value || node.name.toLowerCase().includes(keyword.value.trim().toLowerCase())));
     } // [/]
     // [FindNodeByID]
     const nodes = computed(() => {
