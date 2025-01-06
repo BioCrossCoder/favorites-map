@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { useFavoritesMapStore, useSelectedNodesStore } from "@/composables/store";
 import { Action, UpsertMessage, DeleteMessage, OperationMessage } from "@/interface";
-import { Close, Search } from "@element-plus/icons-vue";
+import { Search } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
+import EditHeader from "./EditHeader.vue";
+import LayoutMain from "@/components/LayoutMain.vue";
 
 const title = ref("");
 const id = ref("");
@@ -45,9 +47,6 @@ function handleClickDelete() {
     };
     handleClick(message);
 }
-function handleClickClose() {
-    window.close();
-}
 const router = useRouter();
 function handleClickSelect() {
     router.push({
@@ -59,16 +58,9 @@ function handleClickSelect() {
 <template>
     <el-container class="container">
         <el-header class="side-row">
-            <el-row justify="space-between" align="middle">
-                <el-text size="large" tag="b">Add to Favorites Map</el-text>
-                <el-button text @click="handleClickClose" class="close-btn">
-                    <el-icon size="20">
-                        <Close />
-                    </el-icon>
-                </el-button>
-            </el-row>
+            <EditHeader title="Add to Favorites Map" />
         </el-header>
-        <el-main class="main">
+        <LayoutMain>
             <el-form label-width="auto" label-position="left">
                 <el-form-item label="Name">
                     <el-input v-model="title" autofocus />
@@ -79,7 +71,7 @@ function handleClickSelect() {
                     </el-button>
                 </el-form-item>
             </el-form>
-        </el-main>
+        </LayoutMain>
         <el-footer class="side-row">
             <el-row justify="end">
                 <el-button @click="handleClickSave" type="primary" :disabled="!canSave">Save</el-button>
@@ -100,16 +92,6 @@ function handleClickSelect() {
 
 .side-row {
     @include common.block-with-height(common.$bar-height);
-}
-
-.main {
-    @extend %reset;
-}
-
-.close-btn {
-    $btn-width: common.$bar-height*0.75;
-    height: $btn-width;
-    width: $btn-width;
 }
 
 .search-btn {

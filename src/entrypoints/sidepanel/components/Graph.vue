@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import LayoutMain from '@/components/LayoutMain.vue';
 import { createGraphConfig } from '@/composables/config';
 import { useFavoritesMapStore, useGraphPositionStore } from '@/composables/store';
 import { NodeData } from '@/interface';
@@ -121,10 +122,10 @@ function handleMouseLeaveStar() {
                 <el-tag size="large" class="tag">{{ hintText }}</el-tag>
             </el-row>
         </el-header>
-        <el-main class="main">
+        <LayoutMain>
             <v-network-graph id="graph" :nodes="nodes" :edges="edges" :selectedNodes="selectedNodes" :configs="configs"
                 :event-handlers="eventHandlers" ref="graph" />
-        </el-main>
+        </LayoutMain>
     </el-container>
 </template>
 
@@ -143,10 +144,6 @@ $header-height: 2*common.$bar-height;
 
 .row {
     height: common.$bar-height;
-}
-
-.main {
-    @include common.block-with-height(calc(100% - $header-height));
 }
 
 #graph {
