@@ -4,6 +4,11 @@ export type NodeData = {
     relatedNodes: string[],
 }
 
+export type TagData = {
+    name: string,
+    labeledNodes: string[],
+}
+
 export const enum Action {
     Upsert,
     Delete,
@@ -42,4 +47,8 @@ export type SearchResultMessage = {
     result: NodeData[],
 }
 
-export const storageKey: `local:${string}` = 'local:favorites_map';
+const storageKeyPrefix = 'local:favorites_map';
+
+export const graphStorageKey: `local:${string}` = `${storageKeyPrefix}:graph`;
+
+export const indexStorageKey: `local:${string}` = `${storageKeyPrefix}:index`;

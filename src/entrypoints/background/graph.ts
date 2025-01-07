@@ -1,4 +1,4 @@
-import { storageKey } from "@/interface";
+import { graphStorageKey } from "@/interface";
 
 export class Node {
     public url: string;
@@ -27,7 +27,7 @@ type GraphData = {
 class GraphStorage {
     private static updateTime: Date = new Date();
     public static async load(): Promise<void> {
-        const dataToLoad: GraphData | null = await storage.getItem(storageKey);
+        const dataToLoad: GraphData | null = await storage.getItem(graphStorageKey);
         if (!dataToLoad) {
             return
         }
@@ -66,13 +66,13 @@ class GraphStorage {
             }),
             updateTime: GraphStorage.updateTime.getTime(),
         };
-        await storage.setItem(storageKey, dataToDump);
+        await storage.setItem(graphStorageKey, dataToDump);
     }
     private static _monitor(): void {
-        storage.watch(storageKey, GraphStorage.load);
+        storage.watch(graphStorageKey, GraphStorage.load);
     }
     public static syncStorageData(): void {
-        storage.getItem(storageKey).then(value => {
+        storage.getItem(graphStorageKey).then(value => {
             if (!value) {
                 GraphStorage.dump().then(GraphStorage._monitor);
             } else {
@@ -86,7 +86,7 @@ export class Graph {
     // [Singleton]
     private constructor() {
         browser.runtime.onStartup.addListener(() => {
-            storage.defineItem(storageKey, {
+            storage.defineItem(graphStorageKey, {
                 fallback: {
                     nodes: [],
                     edges: [],
@@ -158,4 +158,3 @@ export class Graph {
         GraphStorage.dump();
     }
 }
-
