@@ -25,7 +25,7 @@ type GraphData = {
 }
 
 class GraphStorage {
-    private static updateTime: Date;
+    private static updateTime: Date = new Date();
     public static async load(): Promise<void> {
         const dataToLoad: GraphData | null = await storage.getItem(storageKey);
         if (!dataToLoad) {
@@ -45,7 +45,7 @@ class GraphStorage {
         dataToLoad.nodes.forEach(node => {
             data[node.id] = new Node(node.name, node.id, new Set(relatedNodes.get(node.id)));
         });
-        GraphStorage.updateTime = dataToLoad.updateTime ? new Date(dataToLoad.updateTime) : new Date();
+        GraphStorage.updateTime = new Date(dataToLoad?.updateTime ?? new Date());
     }
     public static async dump(): Promise<void> {
         const nodesData = new Array<NodeMetaData>();
@@ -59,13 +59,13 @@ class GraphStorage {
                 edgesData.add(JSON.stringify([node.url, url].sort()))
             });
         });
-        const dataToDump = {
+        const dataToDump: GraphData = {
             nodes: nodesData,
             edges: Array.from(edgesData).map((json: string) => {
                 return JSON.parse(json) as [string, string];
             }),
             updateTime: GraphStorage.updateTime.getTime(),
-        } as GraphData;
+        };
         await storage.setItem(storageKey, dataToDump);
     }
     private static _monitor(): void {
