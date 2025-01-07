@@ -5,6 +5,7 @@ export type NodeData = {
 }
 
 export type TagData = {
+    id: string,
     name: string,
     labeledNodes: string[],
 }
