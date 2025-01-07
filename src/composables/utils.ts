@@ -1,12 +1,13 @@
 import { Action, DeleteMessage, NodeData, OperationMessage, UpsertMessage } from "@/interface";
 import * as vNG from 'v-network-graph';
 import { useSelectedNodesStore, useFavoritesMapStore } from "./store";
+import { FavoritesMapStore, SelectedNodesStore } from "./interface";
 
-export function closeWindowAfterSendMessage(message: OperationMessage) {
+export function closeWindowAfterSendMessage(message: OperationMessage): void {
     browser.runtime.sendMessage(message).then(window.close);
 }
 
-export function doUpsert(name: string, url: string) {
+export function doUpsert(name: string, url: string): void {
     const store = useSelectedNodesStore();
     url = decodeURIComponent(url);
     const message: UpsertMessage = {
@@ -20,7 +21,7 @@ export function doUpsert(name: string, url: string) {
     closeWindowAfterSendMessage(message);
 }
 
-export function doDelete(id: string) {
+export function doDelete(id: string): void {
     const message: DeleteMessage = {
         action: Action.Delete,
         data: id,
@@ -28,15 +29,15 @@ export function doDelete(id: string) {
     closeWindowAfterSendMessage(message);
 }
 
-export function handleMouseEnter(message: string, state: Ref<string>) {
+export function handleMouseEnter(message: string, state: Ref<string>): void {
     state.value = message;
 }
 
-export function handleMouseLeave(state: Ref<string>) {
+export function handleMouseLeave(state: Ref<string>): void {
     state.value = '';
 }
 
-export function buildGraphNodes(data: Ref<NodeData[]>, activator?: (node: string) => boolean) {
+export function buildGraphNodes(data: Ref<NodeData[]>, activator?: (node: string) => boolean): Ref<Record<string, vNG.Node>> {
     return computed<Record<string, vNG.Node>>(() => {
         const nodeMap = {} as Record<string, vNG.Node>;
         for (const node of data.value) {
@@ -49,7 +50,7 @@ export function buildGraphNodes(data: Ref<NodeData[]>, activator?: (node: string
     })
 }
 
-export function buildGraphEdges(data: Ref<NodeData[]>) {
+export function buildGraphEdges(data: Ref<NodeData[]>): Ref<Record<string, vNG.Edge>> {
     return computed<Record<string, vNG.Edge>>(() => {
         const edgeMap = {} as Record<string, vNG.Edge>;
         let count: number = 0;
@@ -88,20 +89,30 @@ function buildSelectGraphEventHandlers(hover: Ref<string>): vNG.EventHandlers {
     }
 }
 
-export function storeGraphSelectedNodes() {
-    const state = useSelectedNodesStore();
-    const oldState = ref(new Array<string>());
-    function reset() {
-        state.clear();
-        oldState.value.forEach(state.add);
+export function buildSelectedNodesStates(): {
+    selectedNodes: SelectedNodesStore,
+    selectedNodesOld: Ref<string[]>,
+    handleClickReset: () => void,
+} {
+    const selectedNodes = useSelectedNodesStore();
+    const selectedNodesOld = ref(new Array<string>());
+    function handleClickReset() {
+        selectedNodes.clear();
+        selectedNodesOld.value.forEach(selectedNodes.add);
     }
     return {
-        oldState,
-        reset
+        selectedNodes,
+        selectedNodesOld,
+        handleClickReset,
     }
 }
 
-export function buildSelectGraph(data: Ref<NodeData[]>) {
+export function buildSelectGraph(data: Ref<NodeData[]>): {
+    nodes: Ref<Record<string, vNG.Node>>,
+    edges: Ref<Record<string, vNG.Edge>>,
+    hoverNode: Ref<string>,
+    eventHandlers: vNG.EventHandlers,
+} {
     const store = useSelectedNodesStore();
     const nodes = buildGraphNodes(data, store.has);
     const edges = buildGraphEdges(data);
@@ -112,5 +123,32 @@ export function buildSelectGraph(data: Ref<NodeData[]>) {
         edges,
         hoverNode,
         eventHandlers,
+    }
+}
+
+export function buildTextState(): {
+    text: Ref<string>,
+    isNotEmpty: ComputedRef<boolean>,
+} {
+    const text = ref('');
+    const isNotEmpty = computed<boolean>(() => text.value !== '');
+    return {
+        text,
+        isNotEmpty,
+    }
+}
+
+export function buildSearchStates(): {
+    keyword: Ref<string>,
+    store: FavoritesMapStore,
+    data: Ref<NodeData[]>,
+} {
+    const keyword = ref('');
+    const store = useFavoritesMapStore();
+    const data = store.search(keyword);
+    return {
+        keyword,
+        store,
+        data,
     }
 }

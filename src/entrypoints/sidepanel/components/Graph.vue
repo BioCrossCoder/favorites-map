@@ -1,16 +1,15 @@
 <script lang="ts" setup>
 import LayoutMain from '@/components/LayoutMain.vue';
 import { createGraphConfig } from '@/composables/config';
-import { useFavoritesMapStore, useGraphPositionStore } from '@/composables/store';
-import { buildGraphEdges, buildGraphNodes, handleMouseEnter, handleMouseLeave } from '@/composables/utils';
+import { useGraphPositionStore } from '@/composables/store';
+import { buildGraphEdges, buildGraphNodes, buildSearchStates, handleMouseEnter, handleMouseLeave } from '@/composables/utils';
 import { NodeData } from '@/interface';
 import { Download, Upload, Star, StarFilled } from '@element-plus/icons-vue';
 import * as vNG from 'v-network-graph';
 import { useRouter } from 'vue-router';
 
 // Load data and init states
-const store = useFavoritesMapStore();
-const data = store.search(ref(''));
+const { store, data } = buildSearchStates();
 const position = useGraphPositionStore();
 const configs = computed(() => {
     data.value; // trigger re-render when data changes

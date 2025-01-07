@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import LayoutMain from '@/components/LayoutMain.vue';
-import { useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
+import { useGraphPositionStore } from '@/composables/store';
+import { buildSearchStates } from '@/composables/utils';
 import { Search, Edit, Location } from '@element-plus/icons-vue';
 
-const keyword = ref('');
-const store = useFavoritesMapStore();
-const items = store.search(keyword);
+const { keyword, data } = buildSearchStates();
 const position = useGraphPositionStore();
 function handleClickEdit(url: string) {
     const urlPrefix: string = browser.runtime.getURL('/popup.html');
@@ -24,7 +23,7 @@ function handleClickEdit(url: string) {
             <el-input v-model="keyword" :prefix-icon="Search" />
         </el-header>
         <LayoutMain class="main">
-            <el-row v-for="node in items" class="row">
+            <el-row v-for="node in data" class="row">
                 <el-tooltip placement="bottom-end">
                     <template #content>{{ node.name }}<br />{{ node.url }}</template>
                     <el-text class="txt" @click="() => browser.tabs.update({ url: node.url })" :icon="Search">

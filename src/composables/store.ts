@@ -1,7 +1,8 @@
 import { NodeData, storageKey, OperationMessage, Action, SearchResultMessage } from '@/interface';
 import { defineStore } from 'pinia';
+import { FavoritesMapStore, GraphPositionStore, SelectedNodesStore, StoreBuilder } from './interface';
 
-function search(keyword: string, receiver: Ref<NodeData[]>) {
+function search(keyword: string, receiver: Ref<NodeData[]>): void {
     const message: OperationMessage = {
         action: Action.Search,
         data: keyword,
@@ -11,7 +12,7 @@ function search(keyword: string, receiver: Ref<NodeData[]>) {
     });
 }
 
-export const useFavoritesMapStore = defineStore('favorites-map', () => {
+export const useFavoritesMapStore: StoreBuilder<FavoritesMapStore> = defineStore('favorites-map', () => {
     // [LoadData]
     const data = ref(new Array<NodeData>());
     const loadData = () => search('', data);
@@ -39,7 +40,7 @@ export const useFavoritesMapStore = defineStore('favorites-map', () => {
     } // [/]
 });
 
-export const useGraphPositionStore = defineStore('graph-position', () => {
+export const useGraphPositionStore: StoreBuilder<GraphPositionStore> = defineStore('graph-position', () => {
     const value = ref('');
     function set(newValue: string) {
         value.value = newValue;
@@ -50,7 +51,7 @@ export const useGraphPositionStore = defineStore('graph-position', () => {
     };
 });
 
-export const useSelectedNodesStore = defineStore('selected-nodes', () => {
+export const useSelectedNodesStore: StoreBuilder<SelectedNodesStore> = defineStore('selected-nodes', () => {
     const data = ref(new Set<string>());
     const value = computed(() => Array.from(data.value));
     function add(node: string) {

@@ -7,7 +7,7 @@ enum ForceType {
     Collide = 'collide'
 }
 
-function createSimulation(d3: typeof d3Force, nodes: ForceNodeDatum[], edges: ForceEdgeDatum[], center: string) {
+function createSimulation(d3: typeof d3Force, nodes: ForceNodeDatum[], edges: ForceEdgeDatum[], center: string): d3Force.Simulation<ForceNodeDatum, undefined> {
     // [FixCenter]
     if (center) {
         for (const node of nodes) {

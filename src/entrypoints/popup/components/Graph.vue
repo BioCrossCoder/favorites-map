@@ -1,17 +1,13 @@
 <script lang="ts" setup>
-import { useFavoritesMapStore, useSelectedNodesStore } from '@/composables/store';
 import { useRouter } from 'vue-router';
 import { createGraphConfig } from '@/composables/config';
 import { Search } from '@element-plus/icons-vue';
 import LayoutMain from '@/components/LayoutMain.vue';
-import { buildSelectGraph, storeGraphSelectedNodes } from '@/composables/utils';
+import { buildSearchStates, buildSelectGraph, buildSelectedNodesStates } from '@/composables/utils';
 
-const keyword = ref('');
-const store = useFavoritesMapStore();
-const data = store.search(keyword);
+const { keyword, data } = buildSearchStates();
 const configs = computed(() => createGraphConfig(keyword.value));
-const selectedNodes = useSelectedNodesStore();
-const { oldState: selectedNodesOld, reset: handleClickReset } = storeGraphSelectedNodes();
+const { selectedNodes, selectedNodesOld, handleClickReset } = buildSelectedNodesStates();
 onMounted(() => {
     selectedNodesOld.value = Array.from(selectedNodes.value);
 });
