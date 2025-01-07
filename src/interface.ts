@@ -11,41 +11,60 @@ export type TagData = {
 }
 
 export const enum Action {
-    Upsert,
-    Delete,
-    Search,
+    UpsertNode,
+    DeleteNode,
+    SearchNodes,
+    UpsertTag,
+    DeleteTag,
+    SearchTags,
+    FilterNodes,
     Import,
 }
 
-export type UpsertMessage = {
-    action: Action.Upsert,
-    data: NodeData,
+type UpsertData = {
+    [Action.UpsertNode]: NodeData,
+    [Action.UpsertTag]: TagData,
 }
 
-export type DeleteMessage = {
-    action: Action.Delete,
+type UpsertAction = Action.UpsertNode | Action.UpsertTag;
+
+export type UpsertRequest<T extends UpsertAction> = {
+    action: T,
+    data: UpsertData[T],
+}
+
+export type DeleteRequest = {
+    action: Action.DeleteNode | Action.DeleteTag,
     data: string,
 }
 
-export type SearchMessage = {
-    action: Action.Search,
+export type SearchRequest = {
+    action: Action.SearchNodes | Action.SearchTags,
     data: string,
 }
 
-export type ImportMessage = {
+export type FilterRequest = {
+    action: Action.FilterNodes,
+    data: string[],
+}
+
+export type ImportRequest = {
     action: Action.Import,
     data: NodeData[],
 }
 
-
-export type OperationMessage = UpsertMessage | DeleteMessage | SearchMessage | ImportMessage;
+export type OperationMessage = UpsertRequest<UpsertAction> | DeleteRequest | SearchRequest | FilterRequest | ImportRequest;
 
 export function isOperationMessage(message: any): message is OperationMessage {
     return Object.hasOwn(message, 'action') && Object.hasOwn(message, 'data');
 }
 
-export type SearchResultMessage = {
-    result: NodeData[],
+export type SearchResponse<T extends NodeData | TagData | string> = {
+    result: T[],
+}
+
+export type UpdateResponse = {
+    success: boolean;
 }
 
 const storageKeyPrefix = 'local:favorites_map';

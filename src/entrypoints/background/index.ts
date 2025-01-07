@@ -1,11 +1,20 @@
-import { Action, isOperationMessage, NodeData, OperationMessage, SearchResultMessage } from "@/interface";
+import { Action, isOperationMessage, NodeData, OperationMessage, SearchResponse, TagData, UpdateResponse, UpsertRequest } from "@/interface";
 import { Graph, Node } from "./graph";
+import { Index, Tag } from "./guide";
 
-function buildResponse(data: Array<Node | null>): NodeData[] {
-    return data.filter(node => node !== null).map(node => ({
+function buildSearchNodesResponse(data: Array<Node | null>): NodeData[] {
+    return data.filter(node => node !== null).map((node: Node) => ({
         name: node.name,
         url: node.url,
-        relatedNodes: Array.from(node.relatedNodeURLs)
+        relatedNodes: Array.from(node.relatedNodeURLs),
+    }));
+}
+
+function buildSearchTagsResponse(data: Array<Tag | null>): TagData[] {
+    return data.filter(tag => tag !== null).map((tag: Tag) => ({
+        id: tag.id,
+        name: tag.name,
+        labeledNodes: Array.from(tag.labeledNodes),
     }));
 }
 
@@ -17,26 +26,27 @@ function keepAlive(): void {
 
 export default defineBackground(() => {
     keepAlive();
-    browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResultMessage) => void) => {
+    browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResponse<NodeData | TagData | string> | UpdateResponse) => void) => {
         if (!isOperationMessage(message)) {
             return;
         }
         switch (message.action) {
-            case Action.Upsert:
+            case Action.UpsertNode:
                 {
-                    const node = new Node(message.data.name, message.data.url, new Set(message.data.relatedNodes));
+                    const msg = message as UpsertRequest<Action.UpsertNode>;
+                    const node = new Node(msg.data.name, msg.data.url, new Set(msg.data.relatedNodes));
                     Graph.instance.upsert(node);
                 }
                 break;
-            case Action.Delete:
+            case Action.DeleteNode:
                 {
                     Graph.instance.delete(message.data);
                 }
                 break;
-            case Action.Search:
+            case Action.SearchNodes:
                 {
                     const nodes: Set<Node> = Graph.instance.search(message.data);
-                    const result: NodeData[] = buildResponse(Array.from(nodes));
+                    const result: NodeData[] = buildSearchNodesResponse(Array.from(nodes));
                     sendResponse({ result });
                 }
                 break;
@@ -48,6 +58,32 @@ export default defineBackground(() => {
                     Graph.instance.import(nodes);
                 }
                 break;
+            case Action.UpsertTag:
+                {
+                    const msg = message as UpsertRequest<Action.UpsertTag>;
+                    const tag = new Tag(msg.data.id, msg.data.name, new Set(msg.data.labeledNodes));
+                    const success = Index.instance.upsert(tag);
+                    sendResponse({ success });
+                }
+                break;
+            case Action.DeleteTag:
+                {
+                    Index.instance.delete(message.data);
+                }
+                break;
+            case Action.SearchTags:
+                {
+                    const tags: Set<Tag> = Index.instance.search(message.data);
+                    const result: TagData[] = buildSearchTagsResponse(Array.from(tags));
+                    sendResponse({ result });
+                }
+                break;
+            case Action.FilterNodes:
+                {
+                    const nodes: Set<string> = Index.instance.findNodes(message.data);
+                    const result: string[] = Array.from(nodes);
+                    sendResponse({ result })
+                }
         }
     });
 });

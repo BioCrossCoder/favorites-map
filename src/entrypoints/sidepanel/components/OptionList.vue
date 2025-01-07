@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import LayoutMain from '@/components/LayoutMain.vue';
 import { useFavoritesMapStore } from '@/composables/store';
-import { Action, ImportMessage, NodeData } from '@/interface';
+import { Action, ImportRequest, NodeData } from '@/interface';
 import { Switch } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
 
@@ -46,7 +46,7 @@ const checkAll = computed({
 });
 const selectedOptions = computed(() => checkList.value.map((url: string) => optionMap.value.get(url)!));
 function handleClickOK() {
-    const message: ImportMessage = {
+    const message: ImportRequest = {
         action: Action.Import,
         data: selectedOptions.value.map((node: NodeData) => {
             node.url = decodeURIComponent(node.url);

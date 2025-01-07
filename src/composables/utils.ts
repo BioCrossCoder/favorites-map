@@ -1,4 +1,4 @@
-import { Action, DeleteMessage, NodeData, OperationMessage, UpsertMessage } from "@/interface";
+import { Action, DeleteRequest, NodeData, OperationMessage, UpsertRequest } from "@/interface";
 import * as vNG from 'v-network-graph';
 import { useSelectedNodesStore, useFavoritesMapStore } from "./store";
 import { FavoritesMapStore, SelectedNodesStore } from "./interface";
@@ -10,8 +10,8 @@ export function closeWindowAfterSendMessage(message: OperationMessage): void {
 export function doUpsert(name: string, url: string): void {
     const store = useSelectedNodesStore();
     url = decodeURIComponent(url);
-    const message: UpsertMessage = {
-        action: Action.Upsert,
+    const message: UpsertRequest<Action.UpsertNode> = {
+        action: Action.UpsertNode,
         data: {
             name,
             url,
@@ -22,8 +22,8 @@ export function doUpsert(name: string, url: string): void {
 }
 
 export function doDelete(id: string): void {
-    const message: DeleteMessage = {
-        action: Action.Delete,
+    const message: DeleteRequest = {
+        action: Action.DeleteNode,
         data: id,
     };
     closeWindowAfterSendMessage(message);
