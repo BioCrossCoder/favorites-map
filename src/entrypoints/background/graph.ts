@@ -20,10 +20,12 @@ type NodeMetaData = {
 
 type GraphData = {
     nodes: NodeMetaData[],
-    edges: [string, string][]
+    edges: [string, string][],
+    updateTime: number,
 }
 
 class GraphStorage {
+    private static updateTime: Date;
     public static async load(): Promise<void> {
         const dataToLoad: GraphData | null = await storage.getItem(storageKey);
         if (!dataToLoad) {
@@ -43,6 +45,7 @@ class GraphStorage {
         dataToLoad.nodes.forEach(node => {
             data[node.id] = new Node(node.name, node.id, new Set(relatedNodes.get(node.id)));
         });
+        GraphStorage.updateTime = dataToLoad.updateTime ? new Date(dataToLoad.updateTime) : new Date();
     }
     public static async dump(): Promise<void> {
         const nodesData = new Array<NodeMetaData>();
@@ -60,7 +63,8 @@ class GraphStorage {
             nodes: nodesData,
             edges: Array.from(edgesData).map((json: string) => {
                 return JSON.parse(json) as [string, string];
-            })
+            }),
+            updateTime: GraphStorage.updateTime.getTime(),
         } as GraphData;
         await storage.setItem(storageKey, dataToDump);
     }
@@ -86,6 +90,7 @@ export class Graph {
                 fallback: {
                     nodes: [],
                     edges: [],
+                    updateTime: new Date().getTime(),
                 } as GraphData,
             });
         });
