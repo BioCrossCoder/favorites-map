@@ -152,3 +152,11 @@ export function buildSearchStates(): {
         data,
     }
 }
+
+export function search<T extends { name: string }>(data: Record<string, T>, keyword: string): Set<T> {
+    if (!data) {
+        return new Set<T>();
+    }
+    keyword = keyword.trim().toLowerCase();
+    return new Set(Object.values(data).filter((item: T) => !keyword || item.name.toLowerCase().includes(keyword)));
+}
