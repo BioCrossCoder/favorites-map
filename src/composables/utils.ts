@@ -8,6 +8,7 @@ export function closeWindowAfterSendMessage(message: OperationMessage) {
 
 export function doUpsert(name: string, url: string) {
     const store = useSelectedNodesStore();
+    url = decodeURIComponent(url);
     const message: UpsertMessage = {
         action: Action.Upsert,
         data: {
