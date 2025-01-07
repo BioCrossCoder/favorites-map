@@ -4,10 +4,10 @@ import { Search } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import EditHeader from "./EditHeader.vue";
 import LayoutMain from "@/components/LayoutMain.vue";
-import { doDelete, doUpsert } from "@/composables/utils";
+import { buildTextState, doDelete, doUpsert } from "@/composables/utils";
 
-const title = ref("");
-const id = ref("");
+const { text: title, isNotEmpty: canSave } = buildTextState();
+const id = ref('');
 const data = useFavoritesMapStore();
 const store = useSelectedNodesStore();
 onMounted(() => {
@@ -23,7 +23,6 @@ onMounted(() => {
             store.load(node?.relatedNodes || []);
         });
 });
-const canSave = computed<boolean>(() => title.value.trim() !== '');
 const router = useRouter();
 </script>
 

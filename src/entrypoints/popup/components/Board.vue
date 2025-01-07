@@ -1,21 +1,17 @@
 <script lang="ts" setup>
 import { useRoute } from 'vue-router';
-import { useFavoritesMapStore, useSelectedNodesStore } from '@/composables/store';
 import { createGraphConfig } from '@/composables/config';
 import EditHeader from '../components/EditHeader.vue';
 import LayoutMain from '@/components/LayoutMain.vue';
 import { Search } from '@element-plus/icons-vue';
-import { buildSelectGraph, doDelete, doUpsert, storeGraphSelectedNodes } from '@/composables/utils';
+import { buildSearchStates, buildSelectGraph, buildTextState, doDelete, doUpsert, buildSelectedNodesStates } from '@/composables/utils';
 
 const route = useRoute();
-const title = ref('');
+const { text: title, isNotEmpty: canSave } = buildTextState();
 const id: string = decodeURIComponent(route.query.id as string);
-const store = useFavoritesMapStore();
-const keyword = ref('');
-const data = store.search(keyword);
+const { keyword, store, data } = buildSearchStates();
 const configs = computed(() => createGraphConfig(keyword.value));
-const selectedNodes = useSelectedNodesStore();
-const { oldState: selectedNodesOld, reset: handleClickReset } = storeGraphSelectedNodes();
+const { selectedNodes, selectedNodesOld, handleClickReset } = buildSelectedNodesStates();
 onMounted(() => {
     const observer = watch(data, () => {
         if (data.value.length > 0) {
@@ -28,7 +24,6 @@ onMounted(() => {
     });
 });
 const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(data);
-const canSave = computed<boolean>(() => title.value.trim() !== '');
 </script>
 
 <template>

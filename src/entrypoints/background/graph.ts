@@ -1,6 +1,6 @@
-import { Action, isOperationMessage, NodeData, OperationMessage, SearchResultMessage, storageKey } from "@/interface";
+import { storageKey } from "@/interface";
 
-class Node {
+export class Node {
     public url: string;
     public name: string;
     public relatedNodeURLs: Set<string>;
@@ -12,6 +12,16 @@ class Node {
 }
 
 const data = {} as Record<string, Node>;
+
+type NodeMetaData = {
+    id: string,
+    name: string,
+}
+
+type GraphData = {
+    nodes: NodeMetaData[],
+    edges: [string, string][]
+}
 
 class GraphStorage {
     public static async load(): Promise<void> {
@@ -54,10 +64,10 @@ class GraphStorage {
         } as GraphData;
         await storage.setItem(storageKey, dataToDump);
     }
-    private static _monitor() {
+    private static _monitor(): void {
         storage.watch(storageKey, GraphStorage.load);
     }
-    public static syncStorageData() {
+    public static syncStorageData(): void {
         storage.getItem(storageKey).then(value => {
             if (!value) {
                 GraphStorage.dump().then(GraphStorage._monitor);
@@ -68,9 +78,18 @@ class GraphStorage {
     }
 };
 
-class Graph {
+export class Graph {
     // [Singleton]
     private constructor() {
+        browser.runtime.onStartup.addListener(() => {
+            storage.defineItem(storageKey, {
+                fallback: {
+                    nodes: [],
+                    edges: [],
+                } as GraphData,
+            });
+        });
+        browser.runtime.onInstalled.addListener(GraphStorage.load);
         GraphStorage.syncStorageData();
     }
     private static _graph = new Graph();
@@ -122,10 +141,10 @@ class Graph {
             if (!keyword || node.name.toLowerCase().includes(keyword)) {
                 result.add(node);
             }
-        } // [/]
+        }
         return result;
     }
-    public import(nodes: Node[]) {
+    public import(nodes: Node[]): void {
         for (const node of nodes) {
             const currentNode: Node = data[node.url] || new Node(node.name, node.url, new Set());
             this.updateRelations(currentNode, node);
@@ -135,72 +154,3 @@ class Graph {
     }
 }
 
-function buildResponse(data: Array<Node | null>): NodeData[] {
-    return data.filter(node => node !== null).map(node => ({
-        name: node.name,
-        url: node.url,
-        relatedNodes: Array.from(node.relatedNodeURLs)
-    }));
-}
-
-type NodeMetaData = {
-    id: string,
-    name: string,
-}
-
-type GraphData = {
-    nodes: NodeMetaData[],
-    edges: [string, string][]
-}
-
-function keepAlive() {
-    setInterval(() => {
-        browser.runtime.sendMessage('').catch(() => { });
-    }, 1000 * 10);
-}
-
-export default defineBackground(() => {
-    browser.runtime.onStartup.addListener(() => {
-        storage.defineItem(storageKey, {
-            fallback: {
-                nodes: [],
-                edges: [],
-            } as GraphData,
-        });
-    });
-    browser.runtime.onInstalled.addListener(GraphStorage.load);
-    browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResultMessage) => void) => {
-        if (!isOperationMessage(message)) {
-            return;
-        }
-        switch (message.action) {
-            case Action.Upsert:
-                {
-                    const node = new Node(message.data.name, message.data.url, new Set(message.data.relatedNodes));
-                    Graph.instance.upsert(node);
-                }
-                break;
-            case Action.Delete:
-                {
-                    Graph.instance.delete(message.data);
-                }
-                break;
-            case Action.Search:
-                {
-                    const nodes: Set<Node> = Graph.instance.search(message.data);
-                    const result: NodeData[] = buildResponse(Array.from(nodes));
-                    sendResponse({ result });
-                }
-                break;
-            case Action.Import:
-                {
-                    const nodes: Node[] = message.data.map((nodeData: NodeData) => {
-                        return new Node(nodeData.name, nodeData.url, new Set(nodeData.relatedNodes));
-                    });
-                    Graph.instance.import(nodes);
-                }
-                break;
-        }
-    });
-    keepAlive();
-});
