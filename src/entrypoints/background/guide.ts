@@ -2,9 +2,11 @@ import { search } from "@/composables/utils";
 import { TagData, indexStorageKey } from "@/interface";
 
 export class Tag {
+    public id: string;
     public name: string;
     public labeledNodes: Set<string>;
-    public constructor(name: string, labeledNodes: Set<string>) {
+    public constructor(id: string, name: string, labeledNodes: Set<string>) {
+        this.id = id;
         this.name = name;
         this.labeledNodes = labeledNodes;
     }
@@ -25,13 +27,14 @@ class IndexStorage {
             return
         }
         dataToLoad.records.forEach((tag: TagData) => {
-            data[tag.name] = new Tag(tag.name, new Set(tag.labeledNodes));
+            data[tag.id] = new Tag(tag.id, tag.name, new Set(tag.labeledNodes));
         });
         IndexStorage.updateTime = new Date(dataToLoad?.updateTime ?? new Date());
     }
     public static async dump(): Promise<void> {
         const dataToDump: IndexData = {
             records: Object.values(data).map((tag: Tag) => ({
+                id: tag.id,
                 name: tag.name,
                 labeledNodes: Array.from(tag.labeledNodes),
             })),
@@ -71,21 +74,18 @@ export class Index {
     public static get instance(): Index {
         return Index._index;
     } // [/]
-    private has(id: string): boolean {
-        return Object.hasOwn(data, id);
+    private isNameRepeat(id: string, name: string): boolean {
+        return Object.values(data).some((tag: Tag) => tag.id !== id && tag.name === name);
     }
-    public insert(tag: Tag): boolean {
-        if (this.has(tag.name)) {
+    public upsert(tag: Tag): boolean {
+        if (this.isNameRepeat(tag.id, tag.name)) {
             return false;
         }
-        data[tag.name] = tag;
+        data[tag.id] = tag;
         IndexStorage.dump();
         return true;
     }
     public delete(id: string): void {
-        if (!this.has(id)) {
-            return;
-        }
         delete data[id];
         IndexStorage.dump();
     }
