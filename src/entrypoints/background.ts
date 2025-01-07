@@ -156,7 +156,7 @@ type GraphData = {
 function keepAlive() {
     setInterval(() => {
         browser.runtime.sendMessage('').catch(() => { });
-    }, 1000);
+    }, 1000 * 10);
 }
 
 export default defineBackground(() => {
