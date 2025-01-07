@@ -1,13 +1,13 @@
-import { NodeData, graphStorageKey, OperationMessage, Action, SearchResultMessage } from '@/interface';
+import { NodeData, graphStorageKey, Action, SearchResponse, SearchRequest } from '@/interface';
 import { defineStore } from 'pinia';
 import { FavoritesMapStore, GraphPositionStore, SelectedNodesStore, StoreBuilder } from './interface';
 
 function search(keyword: string, receiver: Ref<NodeData[]>): void {
-    const message: OperationMessage = {
-        action: Action.Search,
+    const message: SearchRequest = {
+        action: Action.SearchNodes,
         data: keyword,
     };
-    browser.runtime.sendMessage(message).then((response: SearchResultMessage) => {
+    browser.runtime.sendMessage(message).then((response: SearchResponse<NodeData>) => {
         receiver.value = response.result;
     });
 }
