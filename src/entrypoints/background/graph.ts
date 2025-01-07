@@ -1,3 +1,4 @@
+import { search } from "@/composables/utils";
 import { graphStorageKey } from "@/interface";
 
 export class Node {
@@ -137,17 +138,7 @@ export class Graph {
         GraphStorage.dump();
     }
     public search(keyword: string): Set<Node> {
-        const result = new Set<Node>();
-        if (!data) {
-            return result;
-        }
-        keyword = keyword.trim().toLowerCase();
-        for (const node of Object.values(data)) {
-            if (!keyword || node.name.toLowerCase().includes(keyword)) {
-                result.add(node);
-            }
-        }
-        return result;
+        return search(data, keyword);
     }
     public import(nodes: Node[]): void {
         for (const node of nodes) {

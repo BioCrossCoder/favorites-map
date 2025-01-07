@@ -1,3 +1,4 @@
+import { search } from "@/composables/utils";
 import { TagData, indexStorageKey } from "@/interface";
 
 export class Tag {
@@ -89,16 +90,6 @@ export class Index {
         IndexStorage.dump();
     }
     public search(keyword: string): Set<Tag> {
-        const result = new Set<Tag>();
-        if (!data) {
-            return result;
-        }
-        keyword = keyword.trim().toLowerCase();
-        for (const tag of Object.values(data)) {
-            if (!keyword || tag.name.toLowerCase().includes(keyword)) {
-                result.add(tag);
-            }
-        }
-        return result;
+        return search(data, keyword);
     }
 }
