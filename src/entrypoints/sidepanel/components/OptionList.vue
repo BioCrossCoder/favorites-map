@@ -48,7 +48,10 @@ const selectedOptions = computed(() => checkList.value.map((url: string) => opti
 function handleClickOK() {
     const message: ImportMessage = {
         action: Action.Import,
-        data: selectedOptions.value,
+        data: selectedOptions.value.map((node: NodeData) => {
+            node.url = decodeURIComponent(node.url);
+            return node;
+        }),
     }
     browser.runtime.sendMessage(message).then(router.back);
 }
