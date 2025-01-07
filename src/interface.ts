@@ -1,4 +1,4 @@
-export interface NodeData {
+export type NodeData = {
     name: string,
     url: string,
     relatedNodes: string[],
