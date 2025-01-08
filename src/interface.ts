@@ -32,8 +32,10 @@ export type UpsertRequest<T extends UpsertAction> = {
     data: UpsertData[T],
 }
 
-export type DeleteRequest = {
-    action: Action.DeleteNode | Action.DeleteTag,
+export type DeleteAction = Action.DeleteNode | Action.DeleteTag
+
+export type DeleteRequest<T extends DeleteAction> = {
+    action: T,
     data: string,
 }
 
@@ -47,7 +49,7 @@ export type ImportRequest = {
     data: NodeData[],
 }
 
-export type OperationMessage = UpsertRequest<UpsertAction> | DeleteRequest | SearchRequest | ImportRequest;
+export type OperationMessage = UpsertRequest<UpsertAction> | DeleteRequest<DeleteAction> | SearchRequest | ImportRequest;
 
 export function isOperationMessage(message: any): message is OperationMessage {
     return Object.hasOwn(message, 'action') && Object.hasOwn(message, 'data');

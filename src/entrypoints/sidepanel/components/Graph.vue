@@ -9,7 +9,7 @@ import * as vNG from 'v-network-graph';
 import { useRouter } from 'vue-router';
 
 // Load data and init states
-const { store, data } = buildSearchStates();
+const { store, nodeData: data } = buildSearchStates();
 const position = useGraphPositionStore();
 const configs = computed(() => {
     data.value; // trigger re-render when data changes
@@ -22,8 +22,8 @@ const hintText = computed(() => hoverNode.value || position.value);
 // Build graph
 const view = computed(() => {
     if (position.value) {
-        const center = store.find(position.value) as NodeData;
-        return center.relatedNodes.concat(center.url).map((node: string) => store.find(node)!);
+        const center = store.selectNode(position.value) as NodeData;
+        return center.relatedNodes.concat(center.url).map((node: string) => store.selectNode(node)!);
     }
     return data.value;
 });
@@ -34,7 +34,7 @@ const eventHandlers: vNG.EventHandlers = {
         position.set(node);
     },
     'node:pointerover': ({ node }) => {
-        handleMouseEnter(store.find(node)!.name, hoverNode);
+        handleMouseEnter(store.selectNode(node)!.name, hoverNode);
     },
     'node:pointerout': () => {
         handleMouseLeave(hoverNode)

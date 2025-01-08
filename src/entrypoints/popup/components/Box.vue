@@ -4,7 +4,8 @@ import { Search } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import EditHeader from "./EditHeader.vue";
 import LayoutMain from "@/components/LayoutMain.vue";
-import { buildTextState, doDelete, doUpsert } from "@/composables/utils";
+import { buildTextState, deleteItem, upsertNode } from "@/composables/utils";
+import { Action } from "@/interface";
 
 const { text: title, isNotEmpty: canSave } = buildTextState();
 const id = ref('');
@@ -18,9 +19,9 @@ onMounted(() => {
         })
         .then((tabs: chrome.tabs.Tab[]) => {
             id.value = tabs[0].url as string;
-            const node = data.find(id.value);
-            title.value = node?.name || tabs[0].title as string;
-            store.load(node?.relatedNodes || []);
+            const node = data.selectNode(id.value);
+            title.value = node?.name ?? tabs[0].title as string;
+            store.load(node?.relatedNodes ?? []);
         });
 });
 const router = useRouter();
@@ -46,8 +47,8 @@ const router = useRouter();
         </LayoutMain>
         <el-footer class="side-row">
             <el-row justify="end">
-                <el-button @click="() => doUpsert(title, id)" type="primary" :disabled="!canSave">Save</el-button>
-                <el-button @click="() => doDelete(id)">Delete</el-button>
+                <el-button @click="() => upsertNode(title, id)" type="primary" :disabled="!canSave">Save</el-button>
+                <el-button @click="() => deleteItem(id, Action.DeleteNode)">Delete</el-button>
             </el-row>
         </el-footer>
     </el-container>

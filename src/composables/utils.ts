@@ -1,13 +1,9 @@
-import { Action, DeleteRequest, NodeData, OperationMessage, UpsertRequest } from "@/interface";
+import { Action, DeleteAction, DeleteRequest, NodeData, TagData, UpdateResponse, UpsertRequest } from "@/interface";
 import * as vNG from 'v-network-graph';
 import { useSelectedNodesStore, useFavoritesMapStore } from "./store";
 import { FavoritesMapStore, SelectedNodesStore } from "./interface";
 
-export function closeWindowAfterSendMessage(message: OperationMessage): void {
-    browser.runtime.sendMessage(message).then(window.close);
-}
-
-export function doUpsert(name: string, url: string): void {
+export function upsertNode(name: string, url: string): void {
     const store = useSelectedNodesStore();
     url = decodeURIComponent(url);
     const message: UpsertRequest<Action.UpsertNode> = {
@@ -18,15 +14,32 @@ export function doUpsert(name: string, url: string): void {
             relatedNodes: Array.from(store.value.filter((value: string) => value !== url))
         }
     }
-    closeWindowAfterSendMessage(message);
+    browser.runtime.sendMessage(message).then(window.close);
 }
 
-export function doDelete(id: string): void {
-    const message: DeleteRequest = {
-        action: Action.DeleteNode,
+export function deleteItem(id: string, action: DeleteAction, stay?: boolean): void {
+    const message: DeleteRequest<typeof action> = {
+        action,
         data: id,
     };
-    closeWindowAfterSendMessage(message);
+    browser.runtime.sendMessage(message).then(() => {
+        if (!stay) {
+            window.close();
+        }
+    });
+}
+
+export async function upsertTag(id: string, name: string, labeledNodes?: string[]): Promise<boolean> {
+    const store = useFavoritesMapStore();
+    const message: UpsertRequest<Action.UpsertTag> = {
+        action: Action.UpsertTag,
+        data: {
+            id,
+            name,
+            labeledNodes: labeledNodes ?? store.selectTag(id).labeledNodes,
+        }
+    }
+    return (await browser.runtime.sendMessage(message) as UpdateResponse).success;
 }
 
 export function handleMouseEnter(message: string, state: Ref<string>): void {
@@ -78,7 +91,7 @@ function buildSelectGraphEventHandlers(hover: Ref<string>): vNG.EventHandlers {
             }
         },
         'node:pointerover': ({ node }) => {
-            hover.value = store.find(node)!.name;
+            hover.value = store.selectNode(node)!.name;
         },
         'node:pointerout': () => {
             hover.value = '';
@@ -141,16 +154,23 @@ export function buildTextState(): {
 export function buildSearchStates(): {
     keyword: Ref<string>,
     store: FavoritesMapStore,
-    data: Ref<NodeData[]>,
+    nodeData: Ref<NodeData[]>,
+    tagData: Ref<TagData[]>,
 } {
     const keyword = ref('');
     const store = useFavoritesMapStore();
-    const data = store.search(keyword);
+    const nodeData = store.searchNodes(keyword);
+    const tagData = store.searchTags(keyword);
     return {
         keyword,
         store,
-        data,
+        nodeData,
+        tagData,
     }
+}
+
+export function textMatch<T extends { name: string }>(data: T[], keyword: string): T[] {
+    return data.filter((item: T) => !keyword || item.name.toLowerCase().includes(keyword));
 }
 
 export function search<T extends { name: string }>(data: Record<string, T>, keyword: string): Set<T> {
@@ -158,5 +178,5 @@ export function search<T extends { name: string }>(data: Record<string, T>, keyw
         return new Set<T>();
     }
     keyword = keyword.trim().toLowerCase();
-    return new Set(Object.values(data).filter((item: T) => !keyword || item.name.toLowerCase().includes(keyword)));
+    return new Set(textMatch(Object.values(data), keyword));
 }

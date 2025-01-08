@@ -7,7 +7,7 @@ import { useRouter } from 'vue-router';
 
 const store = useFavoritesMapStore();
 const items = ref(new Array<NodeData>());
-const options = computed(() => items.value.filter((node: NodeData) => !store.find(node.url)));
+const options = computed(() => items.value.filter((node: NodeData) => !store.selectNode(node.url)));
 const optionMap = computed(() => {
     const value = new Map<string, NodeData>();
     options.value.forEach((node: NodeData) => {

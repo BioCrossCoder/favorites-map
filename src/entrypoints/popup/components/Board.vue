@@ -4,18 +4,19 @@ import { createGraphConfig } from '@/composables/config';
 import EditHeader from '../components/EditHeader.vue';
 import LayoutMain from '@/components/LayoutMain.vue';
 import { Search } from '@element-plus/icons-vue';
-import { buildSearchStates, buildSelectGraph, buildTextState, doDelete, doUpsert, buildSelectedNodesStates } from '@/composables/utils';
+import { buildSearchStates, buildSelectGraph, buildTextState, deleteItem, upsertNode, buildSelectedNodesStates } from '@/composables/utils';
+import { Action } from '@/interface';
 
 const route = useRoute();
 const { text: title, isNotEmpty: canSave } = buildTextState();
 const id: string = decodeURIComponent(route.query.id as string);
-const { keyword, store, data } = buildSearchStates();
+const { keyword, store, nodeData: data } = buildSearchStates();
 const configs = computed(() => createGraphConfig(keyword.value));
 const { selectedNodes, selectedNodesOld, handleClickReset } = buildSelectedNodesStates();
 onMounted(() => {
     const observer = watch(data, () => {
         if (data.value.length > 0) {
-            const node = store.find(id);
+            const node = store.selectNode(id);
             title.value = node!.name;
             selectedNodes.load(node!.relatedNodes);
             selectedNodesOld.value = Array.from(selectedNodes.value);
@@ -56,8 +57,8 @@ const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(data);
         </LayoutMain>
         <el-footer class="footer">
             <el-row justify="end">
-                <el-button @click="() => doUpsert(title, id)" type="primary" :disabled="!canSave">Save</el-button>
-                <el-button @click="() => doDelete(id)">Delete</el-button>
+                <el-button @click="() => upsertNode(title, id)" type="primary" :disabled="!canSave">Save</el-button>
+                <el-button @click="() => deleteItem(id, Action.DeleteNode)">Delete</el-button>
             </el-row>
         </el-footer>
     </el-container>

@@ -1,8 +1,8 @@
-import { NodeData, graphStorageKey, Action, SearchResponse, SearchRequest } from '@/interface';
+import { NodeData, graphStorageKey, Action, SearchResponse, SearchRequest, TagData, indexStorageKey } from '@/interface';
 import { defineStore } from 'pinia';
-import { FavoritesMapStore, GraphPositionStore, SelectedNodesStore, StoreBuilder } from './interface';
+import { FavoritesMapStore, GraphPositionStore, SelectedNodesStore, SelectedTagsStore, StoreBuilder } from './interface';
 
-function search(keyword: string, receiver: Ref<NodeData[]>): void {
+function loadNodes(keyword: string, receiver: Ref<NodeData[]>): void {
     const message: SearchRequest = {
         action: Action.SearchNodes,
         data: keyword,
@@ -12,33 +12,94 @@ function search(keyword: string, receiver: Ref<NodeData[]>): void {
     });
 }
 
+function loadTags(keyword: string, receiver: Ref<TagData[]>): void {
+    const message: SearchRequest = {
+        action: Action.SearchTags,
+        data: keyword,
+    }
+    browser.runtime.sendMessage(message).then((response: SearchResponse<TagData>) => {
+        receiver.value = response.result;
+    })
+}
+
 export const useFavoritesMapStore: StoreBuilder<FavoritesMapStore> = defineStore('favorites-map', () => {
     // [LoadData]
-    const data = ref(new Array<NodeData>());
-    const loadData = () => search('', data);
+    const nodeList = ref(new Array<NodeData>());
+    const tagList = ref(new Array<TagData>());
+    const loadData = () => {
+        loadNodes('', nodeList);
+        loadTags('', tagList);
+    };
     loadData();
-    storage.watch(graphStorageKey, loadData); // [/]
-    // [SearchNodesByKeyword]
-    function searchProxy(keyword: Ref<string>): ComputedRef<NodeData[]> {
-        return computed(() => data.value.filter((node: NodeData) => !keyword.value || node.name.toLowerCase().includes(keyword.value.trim().toLowerCase())));
-    } // [/]
+    storage.watch(graphStorageKey, loadData);
+    storage.watch(indexStorageKey, loadData) // [/]
+    function searchNodes(keyword: Ref<string>): ComputedRef<NodeData[]> {
+        return computed(() => textMatch(nodeList.value, keyword.value));
+    }
     // [FindNodeByID]
-    const nodes = computed(() => {
+    const nodeSet = computed(() => {
         const collections = {} as Record<string, NodeData>;
-        for (const node of data.value) {
+        for (const node of nodeList.value) {
             collections[node.url] = node;
         }
         return collections;
     });
-    function find(id: string): NodeData | null {
-        return nodes.value[id] || null;
+    function selectNode(id: string): NodeData | null {
+        return nodeSet.value[id] ?? null;
+    } // [/]
+    function searchTags(keyword: Ref<string>): ComputedRef<TagData[]> {
+        return computed(() => textMatch(tagList.value, keyword.value));
+    }
+    // [FindTagByID]
+    const tagSet = computed(() => {
+        const collections = {} as Record<string, TagData>;
+        for (const tag of tagList.value) {
+            collections[tag.id] = tag;
+        }
+        return collections;
+    });
+    function selectTag(id: string): TagData {
+        return tagSet.value[id];
+    } // [/]
+    function filterNodes(tags: Ref<string[]>): ComputedRef<NodeData[]> {
+        return computed(() => {
+            const tagSet = new Set(tags.value);
+            return nodeList.value.filter((node: NodeData) => tagMap.value[node.url].isSupersetOf(tagSet));
+        });
+    }
+    // [GetTagsOfNode]
+    const tagMap = computed(() => {
+        const data = {} as Record<string, Set<TagData>>;
+        for (const node of nodeList.value) {
+            data[node.url] = new Set<TagData>();
+        }
+        for (const tag of tagList.value) {
+            tag.labeledNodes.forEach((node: string) => {
+                data[node].add(tag);
+            });
+        }
+        return data;
+    });
+    function getTags(node: string): TagData[] {
+        return Array.from(tagMap.value[node]) ?? [];
     } // [/]
     // [ExportAPI]
     return {
-        search: searchProxy,
-        find,
+        searchNodes,
+        selectNode,
+        searchTags,
+        selectTag,
+        filterNodes,
+        getTags,
     } // [/]
 });
+
+export const useSelectedTagsStore: StoreBuilder<SelectedTagsStore> = defineStore('selected-tags', () => {
+    const data = ref(new Array<string>());
+    return {
+        getState: () => data,
+    };
+})
 
 export const useGraphPositionStore: StoreBuilder<GraphPositionStore> = defineStore('graph-position', () => {
     const value = ref('');
