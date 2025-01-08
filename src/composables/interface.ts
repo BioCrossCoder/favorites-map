@@ -1,13 +1,21 @@
-import { NodeData } from "@/interface";
+import { NodeData, TagData } from "@/interface";
 
 export type FavoritesMapStore = {
-    search: (keyword: Ref<string>) => ComputedRef<NodeData[]>,
-    find: (id: string) => NodeData | null,
+    searchNodes: (keyword: Ref<string>) => ComputedRef<NodeData[]>,
+    selectNode: (id: string) => NodeData | null,
+    searchTags: (keyword: Ref<string>) => ComputedRef<TagData[]>,
+    selectTag: (id: string) => TagData,
+    filterNodes: (tags: Ref<string[]>) => ComputedRef<NodeData[]>,
+    getTags: (node: string) => TagData[],
 };
 
 export type GraphPositionStore = {
     value: Readonly<string>,
     set: (newValue: string) => void,
+}
+
+export type SelectedTagsStore = {
+    getState: () => Ref<string[]>,
 }
 
 export type SelectedNodesStore = {
@@ -19,4 +27,4 @@ export type SelectedNodesStore = {
     clear: () => void,
 }
 
-export type StoreBuilder<T extends FavoritesMapStore | GraphPositionStore | SelectedNodesStore> = () => T;
+export type StoreBuilder<T extends FavoritesMapStore | GraphPositionStore | SelectedNodesStore | SelectedTagsStore> = () => T;

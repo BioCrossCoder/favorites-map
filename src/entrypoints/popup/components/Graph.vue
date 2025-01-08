@@ -5,7 +5,7 @@ import { Search } from '@element-plus/icons-vue';
 import LayoutMain from '@/components/LayoutMain.vue';
 import { buildSearchStates, buildSelectGraph, buildSelectedNodesStates } from '@/composables/utils';
 
-const { keyword, data } = buildSearchStates();
+const { keyword, nodeData: data } = buildSearchStates();
 const configs = computed(() => createGraphConfig(keyword.value));
 const { selectedNodes, selectedNodesOld, handleClickReset } = buildSelectedNodesStates();
 onMounted(() => {

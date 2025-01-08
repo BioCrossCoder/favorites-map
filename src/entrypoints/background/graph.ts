@@ -123,7 +123,7 @@ export class Graph {
         } // [/]
     }
     public upsert(node: Node): void {
-        const currentNode: Node = data[node.url] || new Node(node.name, node.url, new Set());
+        const currentNode: Node = data[node.url] ?? new Node(node.name, node.url, new Set());
         this.updateRelations(currentNode, node);
         data[node.url] = node;
         GraphStorage.dump();
@@ -142,7 +142,7 @@ export class Graph {
     }
     public import(nodes: Node[]): void {
         for (const node of nodes) {
-            const currentNode: Node = data[node.url] || new Node(node.name, node.url, new Set());
+            const currentNode: Node = data[node.url] ?? new Node(node.name, node.url, new Set());
             this.updateRelations(currentNode, node);
             data[node.url] = node;
         }
