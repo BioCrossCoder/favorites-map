@@ -25,11 +25,20 @@ onMounted(() => {
         });
 });
 const router = useRouter();
+function handleClickMore() {
+    router.push({
+        path: '/edit',
+        query: {
+            id: id.value,
+            name: title.value,
+        },
+    });
+}
 </script>
 
 <template>
     <el-container class="container">
-        <el-header class="side-row">
+        <el-header class="header">
             <EditHeader title="Add to Favorites Map" />
         </el-header>
         <LayoutMain>
@@ -45,10 +54,15 @@ const router = useRouter();
                 </el-form-item>
             </el-form>
         </LayoutMain>
-        <el-footer class="side-row">
-            <el-row justify="end">
-                <el-button @click="() => upsertNode(title, id)" type="primary" :disabled="!canSave">Save</el-button>
-                <el-button @click="() => deleteItem(id, Action.DeleteNode)">Delete</el-button>
+        <el-footer class="footer">
+            <el-row justify="space-between">
+                <el-col :span="7">
+                    <el-button @click="handleClickMore" type="primary">More</el-button>
+                </el-col>
+                <el-col :span="14">
+                    <el-button @click="() => upsertNode(title, id)" type="primary" :disabled="!canSave">Save</el-button>
+                    <el-button @click="() => deleteItem(id, Action.DeleteNode)">Delete</el-button>
+                </el-col>
             </el-row>
         </el-footer>
     </el-container>
@@ -63,11 +77,16 @@ const router = useRouter();
     @extend %container-row-padding;
 }
 
-.side-row {
+.header {
     @include common.block-with-height(common.$bar-height);
 }
 
 .search-btn {
     width: 100%;
+}
+
+.footer {
+    @extend .header;
+    width: 100vw;
 }
 </style>

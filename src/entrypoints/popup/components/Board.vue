@@ -11,9 +11,15 @@ const route = useRoute();
 const { text: title, isNotEmpty: canSave } = buildTextState();
 const id: string = decodeURIComponent(route.query.id as string);
 const { keyword, store, nodeData: data } = buildSearchStates();
+const tagData = store.searchTags(ref(''));
 const configs = computed(() => createGraphConfig(keyword.value));
 const { selectedNodes, selectedNodesOld, handleClickReset } = buildSelectedNodesStates();
+const selectedTags = useSelectedTagsStore().getState();
 onMounted(() => {
+    if (route.query.name) {
+        title.value = route.query.name as string;
+        return;
+    }
     const observer = watch(data, () => {
         if (data.value.length > 0) {
             const node = store.selectNode(id);
@@ -37,6 +43,19 @@ const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(data);
                 </el-form-item>
                 <el-form-item label="URL">
                     <el-input v-model="id" disabled />
+                </el-form-item>
+                <el-form-item label="Tags">
+                    <el-select v-model="selectedTags" multiple :multiple-limit="5" filterable autocomplete="on"
+                        clearable>
+                        <template #label="{ label }">
+                            <el-tooltip placement="bottom" :content="label">
+                                <el-row class="txt" justify="center">{{ label }}</el-row>
+                            </el-tooltip>
+                        </template>
+                        <el-option v-for="item in tagData" :key="item.id" :label="item.name" :value="item.name">
+                            <el-tag type="primary">{{ item.name }}</el-tag>
+                        </el-option>
+                    </el-select>
                 </el-form-item>
             </el-form>
             <el-row>
@@ -75,11 +94,15 @@ const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(data);
 }
 
 .header {
-    @include common.block-with-height(5*common.$bar-height);
+    @include common.block-with-height(6.5*common.$bar-height);
 }
 
 .bar {
     margin-bottom: common.$col-padding-margin-width;
+}
+
+.txt {
+    width: 25px;
 }
 
 .input {
