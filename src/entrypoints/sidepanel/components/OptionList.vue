@@ -2,12 +2,17 @@
 import LayoutMain from '@/components/LayoutMain.vue';
 import { useFavoritesMapStore } from '@/composables/store';
 import { Action, ImportRequest, NodeData } from '@/interface';
-import { Switch } from '@element-plus/icons-vue';
+import { Search, Switch } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
+import { textMatch } from '@/composables/utils';
 
+const keyword = ref('');
 const store = useFavoritesMapStore();
 const items = ref(new Array<NodeData>());
-const options = computed(() => items.value.filter((node: NodeData) => !store.selectNode(node.url)));
+const options = computed(() => {
+    const candidates = items.value.filter((node: NodeData) => !store.selectNode(node.url));
+    return textMatch(candidates, keyword.value);
+});
 const optionMap = computed(() => {
     const value = new Map<string, NodeData>();
     options.value.forEach((node: NodeData) => {
@@ -65,6 +70,7 @@ function handleClickSwitch() {
 <template>
     <el-container>
         <el-header class="header">
+            <el-input v-model="keyword" :prefix-icon="Search" class="input" />
             <el-row justify="space-between">
                 <el-col :span="10">
                     <el-button type="primary" @click="handleClickOK">OK</el-button>
@@ -99,7 +105,11 @@ function handleClickSwitch() {
 @use "@/assets/styles/common.scss";
 
 .header {
-    @include common.block-with-height(common.$bar-height);
+    @include common.block-with-height(2*common.$bar-height);
+}
+
+.input {
+    margin-bottom: common.$col-padding-margin-width;
 }
 
 .txt-btn {
@@ -114,6 +124,6 @@ function handleClickSwitch() {
 }
 
 .main {
-    height: calc(100vh - 1.5*common.$bar-height);
+    height: calc(100vh - 2.5*common.$bar-height);
 }
 </style>
