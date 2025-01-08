@@ -17,7 +17,6 @@ export const enum Action {
     UpsertTag,
     DeleteTag,
     SearchTags,
-    FilterNodes,
     Import,
 }
 
@@ -43,23 +42,18 @@ export type SearchRequest = {
     data: string,
 }
 
-export type FilterRequest = {
-    action: Action.FilterNodes,
-    data: string[],
-}
-
 export type ImportRequest = {
     action: Action.Import,
     data: NodeData[],
 }
 
-export type OperationMessage = UpsertRequest<UpsertAction> | DeleteRequest | SearchRequest | FilterRequest | ImportRequest;
+export type OperationMessage = UpsertRequest<UpsertAction> | DeleteRequest | SearchRequest | ImportRequest;
 
 export function isOperationMessage(message: any): message is OperationMessage {
     return Object.hasOwn(message, 'action') && Object.hasOwn(message, 'data');
 }
 
-export type SearchResponse<T extends NodeData | TagData | string> = {
+export type SearchResponse<T extends NodeData | TagData> = {
     result: T[],
 }
 
