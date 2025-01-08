@@ -92,17 +92,4 @@ export class Index {
     public search(keyword: string): Set<Tag> {
         return search(data, keyword);
     }
-    public findNodes(ids: string[]): Set<string> {
-        if (ids.length === 0 || ids.some((id: string) => !Object.hasOwn(data, id))) {
-            return new Set();
-        }
-        let nodes = new Set(data[ids[0]].labeledNodes);
-        for (const id of ids.slice(1)) {
-            nodes = nodes.intersection(data[id].labeledNodes)
-            if (nodes.size === 0) {
-                return nodes;
-            }
-        }
-        return nodes;
-    }
 }

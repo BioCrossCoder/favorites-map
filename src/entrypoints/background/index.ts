@@ -26,7 +26,7 @@ function keepAlive(): void {
 
 export default defineBackground(() => {
     keepAlive();
-    browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResponse<NodeData | TagData | string> | UpdateResponse) => void) => {
+    browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResponse<NodeData | TagData> | UpdateResponse) => void) => {
         if (!isOperationMessage(message)) {
             return;
         }
@@ -78,12 +78,6 @@ export default defineBackground(() => {
                     sendResponse({ result });
                 }
                 break;
-            case Action.FilterNodes:
-                {
-                    const nodes: Set<string> = Index.instance.findNodes(message.data);
-                    const result: string[] = Array.from(nodes);
-                    sendResponse({ result })
-                }
         }
     });
 });
