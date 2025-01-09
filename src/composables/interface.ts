@@ -6,7 +6,7 @@ export type FavoritesMapStore = {
     searchTags: (keyword: Ref<string>) => ComputedRef<TagData[]>,
     selectTag: (id: string) => TagData,
     filterNodes: (tags: Ref<string[]>) => ComputedRef<NodeData[]>,
-    getTags: (node: string) => TagData[],
+    getTags: (node: string) => ComputedRef<TagData[]>,
 };
 
 export type GraphPositionStore = {

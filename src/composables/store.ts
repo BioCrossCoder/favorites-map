@@ -19,20 +19,17 @@ function loadTags(keyword: string, receiver: Ref<TagData[]>): void {
     }
     browser.runtime.sendMessage(message).then((response: SearchResponse<TagData>) => {
         receiver.value = response.result;
-    })
+    });
 }
 
 export const useFavoritesMapStore: StoreBuilder<FavoritesMapStore> = defineStore('favorites-map', () => {
     // [LoadData]
     const nodeList = ref(new Array<NodeData>());
     const tagList = ref(new Array<TagData>());
-    const loadData = () => {
-        loadNodes('', nodeList);
-        loadTags('', tagList);
-    };
-    loadData();
-    storage.watch(graphStorageKey, loadData);
-    storage.watch(indexStorageKey, loadData) // [/]
+    loadNodes('', nodeList);
+    loadTags('', tagList);
+    storage.watch(graphStorageKey, () => loadNodes('', nodeList));
+    storage.watch(indexStorageKey, () => loadTags('', tagList)); // [/]
     function searchNodes(keyword: Ref<string>): ComputedRef<NodeData[]> {
         return computed(() => textMatch(nodeList.value, keyword.value));
     }
@@ -61,12 +58,6 @@ export const useFavoritesMapStore: StoreBuilder<FavoritesMapStore> = defineStore
     function selectTag(id: string): TagData {
         return tagSet.value[id];
     } // [/]
-    function filterNodes(tags: Ref<string[]>): ComputedRef<NodeData[]> {
-        return computed(() => {
-            const tagSet = new Set(tags.value);
-            return nodeList.value.filter((node: NodeData) => tagMap.value[node.url].isSupersetOf(tagSet));
-        });
-    }
     // [GetTagsOfNode]
     const tagMap = computed(() => {
         const data = {} as Record<string, Set<TagData>>;
@@ -80,9 +71,18 @@ export const useFavoritesMapStore: StoreBuilder<FavoritesMapStore> = defineStore
         }
         return data;
     });
-    function getTags(node: string): TagData[] {
-        return Array.from(tagMap.value[node]) ?? [];
+    function getTags(node: string): ComputedRef<TagData[]> {
+        return computed(() => {
+            const data = tagMap.value[node];
+            return data ? Array.from(data) : [];
+        });
     } // [/]
+    function filterNodes(tags: Ref<string[]>): ComputedRef<NodeData[]> {
+        return computed(() => {
+            const tagSet = new Set(tags.value);
+            return nodeList.value.filter((node: NodeData) => new Set(Array.from(tagMap.value[node.url]).map((tag: TagData) => tag.id)).isSupersetOf(tagSet));
+        });
+    }
     // [ExportAPI]
     return {
         searchNodes,
