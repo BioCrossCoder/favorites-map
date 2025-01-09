@@ -12,6 +12,8 @@ onMounted(() => {
     selectedNodesOld.value = Array.from(selectedNodes.value);
 });
 const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(data);
+const totalCount = computed<number>(() => data.value.length);
+const selectedCount = computed<number>(() => selectedNodes.value.length);
 const router = useRouter();
 </script>
 
@@ -24,7 +26,18 @@ const router = useRouter();
                     <el-button @click="handleClickReset">Reset</el-button>
                 </el-col>
                 <el-col :span="8">
-                    <el-input v-model="keyword" :prefix-icon="Search" class="input" />
+                    <el-input v-model="keyword" :prefix-icon="Search" class="input">
+                        <template #suffix>
+                            <el-row>
+                                <el-text class="txt">
+                                    {{ selectedCount }}
+                                </el-text>
+                                <el-text>
+                                    /{{ totalCount }}
+                                </el-text>
+                            </el-row>
+                        </template>
+                    </el-input>
                 </el-col>
             </el-row>
             <el-row>
@@ -54,6 +67,10 @@ $header-height: 2*common.$bar-height;
 
 .input {
     display: inline-block;
+}
+
+.txt {
+    color: common.$theme-blue;
 }
 
 #graph {

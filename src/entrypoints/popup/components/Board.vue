@@ -21,6 +21,7 @@ onMounted(() => {
     }, 0);
     if (route.query.name) {
         title.value = route.query.name as string;
+        selectedNodesOld.value = Array.from(selectedNodes.value);
         return;
     }
     const observer = watch(nodeData, () => {
@@ -34,6 +35,8 @@ onMounted(() => {
     });
 });
 const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(nodeData);
+const nodeTotalCount = computed<number>(() => nodeData.value.length);
+const selectedNodeCount = computed<number>(() => selectedNodes.value.length);
 </script>
 
 <template>
@@ -66,7 +69,18 @@ const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(nodeData);
                     <el-button @click="handleClickReset">Reset</el-button>
                 </el-col>
                 <el-col :span="16">
-                    <el-input v-model="keyword" :prefix-icon="Search" class="input" />
+                    <el-input v-model="keyword" :prefix-icon="Search" class="input">
+                        <template #suffix>
+                            <el-row>
+                                <el-text class="cnt">
+                                    {{ selectedNodeCount }}
+                                </el-text>
+                                <el-text>
+                                    /{{ nodeTotalCount }}
+                                </el-text>
+                            </el-row>
+                        </template>
+                    </el-input>
                 </el-col>
             </el-row>
             <el-row>
@@ -110,6 +124,10 @@ const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(nodeData);
 
 .input {
     display: inline-block;
+}
+
+.cnt {
+    color: common.$theme-blue;
 }
 
 .tag {
