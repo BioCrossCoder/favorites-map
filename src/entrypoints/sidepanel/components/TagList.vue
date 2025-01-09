@@ -1,11 +1,16 @@
 <script lang="ts" setup>
 import { Action, TagData } from '@/interface';
 import { upsertTag, deleteItem } from '@/composables/utils';
-import { useSelectedTagsStore } from '@/composables/store';
+import { useSelectedTagsStore, useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
 import { Plus, Delete, Check, Close, Edit } from '@element-plus/icons-vue';
 
 const data = inject('tagData') as Ref<TagData[]>;
 const checkList = useSelectedTagsStore().getState();
+const position = useGraphPositionStore();
+const store = useFavoritesMapStore();
+onMounted(() => {
+    checkList.value = store.getTags(position.value).value.map((tag: TagData) => tag.id);
+});
 const entry = ref('');
 const input = ref(false);
 const edit = ref('');
