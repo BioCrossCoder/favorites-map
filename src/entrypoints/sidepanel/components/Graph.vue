@@ -1,18 +1,20 @@
 <script lang="ts" setup>
 import LayoutMain from '@/components/LayoutMain.vue';
 import { createGraphConfig } from '@/composables/config';
-import { useGraphPositionStore } from '@/composables/store';
-import { buildGraphEdges, buildGraphNodes, buildSearchStates, handleMouseEnter, handleMouseLeave } from '@/composables/utils';
+import { useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
+import { buildGraphEdges, buildGraphNodes, handleMouseEnter, handleMouseLeave } from '@/composables/utils';
 import { NodeData } from '@/interface';
 import { Download, Upload, Star, StarFilled } from '@element-plus/icons-vue';
 import * as vNG from 'v-network-graph';
 import { useRouter } from 'vue-router';
 
 // Load data and init states
-const { store, nodeData: data } = buildSearchStates();
+const store = useFavoritesMapStore();
+const selectedTags = useSelectedTagsStore().getState();
+const nodeData = store.filterNodes(selectedTags);
 const position = useGraphPositionStore();
 const configs = computed(() => {
-    data.value; // trigger re-render when data changes
+    nodeData.value; // trigger re-render when data changes
     return createGraphConfig(position.value);
 });
 const selectedNodes = computed(() => position.value ? [position.value] : []);
@@ -25,7 +27,7 @@ const view = computed(() => {
         const center = store.selectNode(position.value) as NodeData;
         return center.relatedNodes.concat(center.url).map((node: string) => store.selectNode(node)!);
     }
-    return data.value;
+    return nodeData.value;
 });
 const nodes = buildGraphNodes(view);
 const edges = buildGraphEdges(view);

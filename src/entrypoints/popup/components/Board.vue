@@ -5,23 +5,26 @@ import EditHeader from '../components/EditHeader.vue';
 import LayoutMain from '@/components/LayoutMain.vue';
 import { Search } from '@element-plus/icons-vue';
 import { buildSearchStates, buildSelectGraph, buildTextState, deleteItem, upsertNode, buildSelectedNodesStates } from '@/composables/utils';
-import { Action } from '@/interface';
+import { Action, TagData } from '@/interface';
 
 const route = useRoute();
 const { text: title, isNotEmpty: canSave } = buildTextState();
 const id: string = decodeURIComponent(route.query.id as string);
-const { keyword, store, nodeData: data } = buildSearchStates();
+const { keyword, store, nodeData } = buildSearchStates();
 const tagData = store.searchTags(ref(''));
 const configs = computed(() => createGraphConfig(keyword.value));
 const { selectedNodes, selectedNodesOld, handleClickReset } = buildSelectedNodesStates();
 const selectedTags = useSelectedTagsStore().getState();
 onMounted(() => {
+    setTimeout(() => {
+        selectedTags.value = store.getTags(id).value.map((tag: TagData) => tag.id);
+    }, 0);
     if (route.query.name) {
         title.value = route.query.name as string;
         return;
     }
-    const observer = watch(data, () => {
-        if (data.value.length > 0) {
+    const observer = watch(nodeData, () => {
+        if (nodeData.value.length > 0) {
             const node = store.selectNode(id);
             title.value = node!.name;
             selectedNodes.load(node!.relatedNodes);
@@ -30,7 +33,7 @@ onMounted(() => {
         }
     });
 });
-const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(data);
+const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(nodeData);
 </script>
 
 <template>
@@ -52,7 +55,7 @@ const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(data);
                                 <el-row class="txt" justify="center">{{ label }}</el-row>
                             </el-tooltip>
                         </template>
-                        <el-option v-for="item in tagData" :key="item.id" :label="item.name" :value="item.name">
+                        <el-option v-for="item in tagData" :key="item.id" :label="item.name" :value="item.id">
                             <el-tag type="primary">{{ item.name }}</el-tag>
                         </el-option>
                     </el-select>

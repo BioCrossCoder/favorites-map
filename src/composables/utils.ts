@@ -1,20 +1,46 @@
 import { Action, DeleteAction, DeleteRequest, NodeData, TagData, UpdateResponse, UpsertRequest } from "@/interface";
 import * as vNG from 'v-network-graph';
-import { useSelectedNodesStore, useFavoritesMapStore } from "./store";
+import { useSelectedNodesStore, useFavoritesMapStore, useSelectedTagsStore } from "./store";
 import { FavoritesMapStore, SelectedNodesStore } from "./interface";
+import { storeToRefs } from "pinia";
 
 export function upsertNode(name: string, url: string): void {
-    const store = useSelectedNodesStore();
+    const store = useFavoritesMapStore();
+    const selectedNodes = useSelectedNodesStore();
+    const selectedTags = useSelectedTagsStore().getState();
     url = decodeURIComponent(url);
     const message: UpsertRequest<Action.UpsertNode> = {
         action: Action.UpsertNode,
         data: {
             name,
             url,
-            relatedNodes: Array.from(store.value.filter((value: string) => value !== url))
+            relatedNodes: Array.from(selectedNodes.value.filter((value: string) => value !== url))
         }
     }
-    browser.runtime.sendMessage(message).then(window.close);
+    browser.runtime.sendMessage(message).then(() => {
+        const oldTags = new Set(store.getTags(url).value.map((tag: TagData) => tag.id));
+        const newTags = new Set(selectedTags.value);
+        const tagsToUpdate = new Array<TagData>();
+        Array.from(oldTags.difference(newTags)).forEach((tag: string) => {
+            const data: TagData = store.selectTag(tag);
+            data.labeledNodes = data.labeledNodes.filter((node: string) => node !== url);
+            tagsToUpdate.push(data);
+        });
+        Array.from(newTags.difference(oldTags)).forEach((tag: string) => {
+            const data: TagData = store.selectTag(tag);
+            data.labeledNodes.push(url);
+            tagsToUpdate.push(data);
+        });
+        const tasks = new Array<Promise<any>>();
+        tagsToUpdate.forEach((data: TagData) => {
+            const message: UpsertRequest<Action.UpsertTag> = {
+                action: Action.UpsertTag,
+                data,
+            }
+            tasks.push(browser.runtime.sendMessage(message));
+        });
+        Promise.all(tasks).then(window.close);
+    });
 }
 
 export function deleteItem(id: string, action: DeleteAction, stay?: boolean): void {
@@ -22,10 +48,24 @@ export function deleteItem(id: string, action: DeleteAction, stay?: boolean): vo
         action,
         data: id,
     };
-    browser.runtime.sendMessage(message).then(() => {
-        if (!stay) {
-            window.close();
-        }
+    const store = useFavoritesMapStore();
+    const tasks = new Array<Promise<any>>();
+    if (action === Action.DeleteNode) {
+        Array.from(store.getTags(id).value).forEach((data: TagData) => {
+            data.labeledNodes = data.labeledNodes.filter((node: string) => node !== id);
+            const message: UpsertRequest<Action.UpsertTag> = {
+                action: Action.UpsertTag,
+                data,
+            }
+            tasks.push(browser.runtime.sendMessage(message));
+        })
+    }
+    Promise.all(tasks).then(() => {
+        browser.runtime.sendMessage(message).then(() => {
+            if (!stay) {
+                window.close();
+            }
+        });
     });
 }
 

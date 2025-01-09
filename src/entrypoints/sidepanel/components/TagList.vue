@@ -90,7 +90,7 @@ function handleClickCancelRename(event: MouseEvent) {
             </template>
         </el-input>
     </el-row>
-    <el-checkbox-group v-model="checkList" :max="5">
+    <el-checkbox-group v-model="checkList" :max="5" class="checkgroup">
         <el-checkbox v-for="tag in data" :value="tag.id" class="checkbox">
             <el-input v-if="edit === tag.id" v-model="entry">
                 <template #suffix>
@@ -110,10 +110,10 @@ function handleClickCancelRename(event: MouseEvent) {
                 </template>
             </el-input>
             <el-row justify="space-between" class="check-row" v-else>
-                <el-col :span="22">
+                <el-col :span="21">
                     <el-tag type="primary">{{ tag.name }}</el-tag>
                 </el-col>
-                <el-col :span="2">
+                <el-col :span="3">
                     <el-icon size="20" class="icon" @click="(event: MouseEvent) => handleClickRename(event, tag)">
                         <Edit />
                     </el-icon>
@@ -136,6 +136,10 @@ $row-height: common.$bar-height*0.8;
 .check-row {
     width: calc(100vw - 2*(common.$icon-size));
     align-items: center;
+}
+
+.checkgroup {
+    overflow-x: hidden;
 }
 
 .checkbox {
