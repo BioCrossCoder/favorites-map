@@ -106,10 +106,9 @@ export function buildGraphNodes(data: Ref<NodeData[]>, activator?: (node: string
 export function buildGraphEdges(data: Ref<NodeData[]>): Ref<Record<string, vNG.Edge>> {
     return computed<Record<string, vNG.Edge>>(() => {
         const edgeMap = {} as Record<string, vNG.Edge>;
-        let count: number = 0;
         for (const node of data.value) {
             for (const neighbor of node.relatedNodes) {
-                edgeMap[String(++count)] = {
+                edgeMap[JSON.stringify([node.url, neighbor].sort())] = {
                     source: node.url,
                     target: neighbor,
                 };
