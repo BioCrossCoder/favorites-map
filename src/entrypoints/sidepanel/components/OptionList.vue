@@ -13,13 +13,14 @@ const options = computed(() => {
     const candidates = items.value.filter((node: NodeData) => !store.selectNode(node.url));
     return textMatch(candidates, keyword.value);
 });
+const optionCount = computed<number>(() => options.value.length);
 const optionMap = computed(() => {
     const value = new Map<string, NodeData>();
     options.value.forEach((node: NodeData) => {
         value.set(node.url, node);
     })
     return value;
-})
+});
 onMounted(() => {
     const nodes = new Array<NodeData>();
     const dfs = (node: chrome.bookmarks.BookmarkTreeNode) => {
@@ -41,6 +42,7 @@ onMounted(() => {
 });
 
 const checkList = ref(new Array<string>());
+const checkCount = computed<number>(() => checkList.value.length);
 const checkSet = computed(() => new Set(checkList.value));
 const indeterminate = computed(() => checkList.value.length > 0 && checkList.value.length < options.value.length);
 const checkAll = computed({
@@ -70,7 +72,18 @@ function handleClickSwitch() {
 <template>
     <el-container>
         <el-header class="header">
-            <el-input v-model="keyword" :prefix-icon="Search" class="input" />
+            <el-input v-model="keyword" :prefix-icon="Search" class="input">
+                <template #suffix>
+                    <el-row>
+                        <el-text class="txt">
+                            {{ checkCount }}
+                        </el-text>
+                        <el-text>
+                            /{{ optionCount }}
+                        </el-text>
+                    </el-row>
+                </template>
+            </el-input>
             <el-row justify="space-between">
                 <el-col :span="10">
                     <el-button type="primary" @click="handleClickOK">OK</el-button>
@@ -125,5 +138,9 @@ function handleClickSwitch() {
 
 .main {
     height: calc(100vh - 2.5*common.$bar-height);
+}
+
+.txt {
+    color: common.$theme-blue;
 }
 </style>

@@ -29,6 +29,7 @@ const view = computed(() => {
     }
     return nodeData.value;
 });
+const count = computed<number>(() => view.value.length);
 const nodes = buildGraphNodes(view);
 const edges = buildGraphEdges(view);
 const eventHandlers: vNG.EventHandlers = {
@@ -89,12 +90,15 @@ function handleMouseLeaveStar() {
 <template>
     <el-container class="container">
         <el-header class="header">
-            <el-row justify="space-between" class="row">
+            <el-row justify="space-between" align="middle" class="row">
                 <el-col :span="12">
                     <el-button type="primary" @click="handleClickVisit">Visit</el-button>
                     <el-button @click="() => position.set('')">Overview</el-button>
                 </el-col>
-                <el-col :span="5.5">
+                <el-col :span="6">
+                    <el-tag>{{ count }}</el-tag>
+                </el-col>
+                <el-col :span="5">
                     <el-icon size="20" class="icon" @click="handleClickUpload" @mouseenter="handleMouseEnterUpload"
                         @mouseleave="handleMouseLeaveHover">
                         <Upload />
