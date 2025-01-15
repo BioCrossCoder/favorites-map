@@ -24,8 +24,10 @@ const hintText = computed(() => hoverNode.value || position.value);
 // Build graph
 const view = computed(() => {
     if (position.value) {
-        const center = store.selectNode(position.value) as NodeData;
-        return center.relatedNodes.concat(center.url).map((node: string) => store.selectNode(node)!);
+        const center = store.selectNode(position.value);
+        if (center) {
+            return center.relatedNodes.concat(center.url).map((node: string) => store.selectNode(node)!);
+        }
     }
     return nodeData.value;
 });
