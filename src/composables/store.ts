@@ -65,7 +65,7 @@ export const useFavoritesMapStore: StoreBuilder<FavoritesMapStore> = defineStore
             data[node.url] = new Set<TagData>();
         }
         for (const tag of tagList.value) {
-            tag.labeledNodes.forEach((node: string) => {
+            tag.labeledNodes.filter((node: string) => Object.hasOwn(data, node)).forEach((node: string) => {
                 data[node].add(tag);
             });
         }

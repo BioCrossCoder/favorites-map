@@ -46,7 +46,10 @@ export type SearchRequest = {
 
 export type ImportRequest = {
     action: Action.Import,
-    data: NodeData[],
+    data: {
+        nodes: NodeData[],
+        tags: TagData[],
+    },
 }
 
 export type OperationMessage = UpsertRequest<UpsertAction> | DeleteRequest<DeleteAction> | SearchRequest | ImportRequest;

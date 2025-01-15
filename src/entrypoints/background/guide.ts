@@ -13,6 +13,16 @@ export class Tag {
 }
 
 const data = {} as Record<string, Tag>;
+const nameToID = {} as Record<string, string>;
+function addTag(tag: Tag): void {
+    data[tag.id] = tag;
+    nameToID[tag.name] = tag.id;
+}
+
+function deleteTag(id: string): void {
+    delete nameToID[data[id].name];
+    delete data[id];
+}
 
 type IndexData = {
     records: TagData[],
@@ -27,7 +37,7 @@ class IndexStorage {
             return
         }
         dataToLoad.records.forEach((tag: TagData) => {
-            data[tag.id] = new Tag(tag.id, tag.name, new Set(tag.labeledNodes));
+            addTag(new Tag(tag.id, tag.name, new Set(tag.labeledNodes)));
         });
         IndexStorage.updateTime = new Date(dataToLoad?.updateTime ?? new Date());
     }
@@ -75,21 +85,31 @@ export class Index {
         return Index._index;
     } // [/]
     private isNameRepeat(id: string, name: string): boolean {
-        return Object.values(data).some((tag: Tag) => tag.id !== id && tag.name === name);
+        return (nameToID[name] ?? id) !== id;
     }
     public upsert(tag: Tag): boolean {
         if (this.isNameRepeat(tag.id, tag.name)) {
             return false;
         }
-        data[tag.id] = tag;
+        addTag(tag);
         IndexStorage.dump();
         return true;
     }
     public delete(id: string): void {
-        delete data[id];
+        deleteTag(id);
         IndexStorage.dump();
     }
     public search(keyword: string): Set<Tag> {
         return search(data, keyword);
+    }
+    public import(tags: Tag[]): void {
+        for (const tag of tags) {
+            const tagID = nameToID[tag.name] ?? tag.id;
+            const currentTag = data[tagID] ?? new Tag(tag.id, tag.name, new Set());
+            tag.labeledNodes = tag.labeledNodes.union(currentTag.labeledNodes);
+            tag.id = tagID;
+            addTag(tag);
+        }
+        IndexStorage.dump();
     }
 }

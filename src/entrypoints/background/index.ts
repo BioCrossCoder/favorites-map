@@ -52,10 +52,14 @@ export default defineBackground(() => {
                 break;
             case Action.Import:
                 {
-                    const nodes: Node[] = message.data.map((nodeData: NodeData) => {
+                    const nodes: Node[] = message.data.nodes.map((nodeData: NodeData) => {
                         return new Node(nodeData.name, nodeData.url, new Set(nodeData.relatedNodes));
                     });
                     Graph.instance.import(nodes);
+                    const tags: Tag[] = message.data.tags.map((tagData: TagData) => {
+                        return new Tag(tagData.id, tagData.name, new Set(tagData.labeledNodes));
+                    });
+                    Index.instance.import(tags);
                 }
                 break;
             case Action.UpsertTag:

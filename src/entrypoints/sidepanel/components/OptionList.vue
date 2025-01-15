@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import LayoutMain from '@/components/LayoutMain.vue';
 import { useFavoritesMapStore } from '@/composables/store';
-import { Action, ImportRequest, NodeData } from '@/interface';
+import { Action, ImportRequest, NodeData, TagData } from '@/interface';
 import { Search, Switch } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
 import { textMatch } from '@/composables/utils';
@@ -9,6 +9,8 @@ import { textMatch } from '@/composables/utils';
 const keyword = ref('');
 const store = useFavoritesMapStore();
 const items = ref(new Array<NodeData>());
+const categories = ref({} as Record<string, TagData>);
+const cateMap = ref({} as Record<string, string[]>);
 const options = computed(() => {
     const candidates = items.value.filter((node: NodeData) => !store.selectNode(node.url));
     return textMatch(candidates, keyword.value);
@@ -18,25 +20,47 @@ const optionMap = computed(() => {
     const value = new Map<string, NodeData>();
     options.value.forEach((node: NodeData) => {
         value.set(node.url, node);
-    })
+    });
     return value;
 });
 onMounted(() => {
     const nodes = new Array<NodeData>();
-    const dfs = (node: chrome.bookmarks.BookmarkTreeNode) => {
+    const tags: Record<string, TagData> = {};
+    const nodesToTagMapping: Record<string, string[]> = {};
+    const dfs = (node: chrome.bookmarks.BookmarkTreeNode, parents: chrome.bookmarks.BookmarkTreeNode[]) => {
         if (node.url) {
-            nodes.push({
+            const graphNode: NodeData = {
                 name: node.title,
                 url: node.url,
                 relatedNodes: []
+            }
+            nodes.push(graphNode);
+            parents.forEach((parentNode: chrome.bookmarks.BookmarkTreeNode) => {
+                if (!Object.hasOwn(tags, parentNode.title)) {
+                    tags[parentNode.title] = {
+                        id: crypto.randomUUID(),
+                        name: parentNode.title,
+                        labeledNodes: [],
+                    }
+                }
+                tags[parentNode.title].labeledNodes.push(graphNode.url);
             });
+            nodesToTagMapping[graphNode.url] = parents.map((parentNode: chrome.bookmarks.BookmarkTreeNode) => parentNode.title);
+            return;
         }
-        node.children?.forEach(dfs);
+        const newParents = parents.concat(node).slice(parents.length - 4, parents.length + 1);
+        node.children!.forEach((childNode: chrome.bookmarks.BookmarkTreeNode) => {
+            dfs(childNode, newParents);
+        });
     }
     browser.bookmarks.getTree().then((treeNodes: chrome.bookmarks.BookmarkTreeNode[]) => {
-        treeNodes.forEach(dfs);
+        treeNodes.forEach((node: chrome.bookmarks.BookmarkTreeNode) => {
+            dfs(node, []);
+        });
     }).then(() => {
         items.value = nodes;
+        categories.value = tags;
+        cateMap.value = nodesToTagMapping;
         checkAll.value = true;
     });
 });
@@ -53,12 +77,19 @@ const checkAll = computed({
 });
 const selectedOptions = computed(() => checkList.value.map((url: string) => optionMap.value.get(url)!));
 function handleClickOK() {
+    const tagIDs = new Set<string>();
+    const nodes: NodeData[] = selectedOptions.value.map((node: NodeData) => {
+        node.url = decodeURIComponent(node.url);
+        cateMap.value[node.url].forEach((tagID: string) => tagIDs.add(tagID));
+        return node;
+    });
+    const tags: TagData[] = Array.from(tagIDs).map((tagID: string) => categories.value[tagID]);
     const message: ImportRequest = {
         action: Action.Import,
-        data: selectedOptions.value.map((node: NodeData) => {
-            node.url = decodeURIComponent(node.url);
-            return node;
-        }),
+        data: {
+            nodes,
+            tags,
+        },
     }
     browser.runtime.sendMessage(message).then(router.back);
 }
