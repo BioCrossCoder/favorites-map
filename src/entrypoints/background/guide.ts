@@ -104,6 +104,9 @@ export class Index {
     }
     public import(tags: Tag[]): void {
         for (const tag of tags) {
+            if (!tag.name) {
+                continue;
+            }
             const tagID = nameToID[tag.name] ?? tag.id;
             const currentTag = data[tagID] ?? new Tag(tag.id, tag.name, new Set());
             tag.labeledNodes = tag.labeledNodes.union(currentTag.labeledNodes);
