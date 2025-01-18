@@ -31,7 +31,7 @@ onMounted(() => {
         if (node.url) {
             const graphNode: NodeData = {
                 name: node.title,
-                url: node.url,
+                url: decodeURIComponent(node.url),
                 relatedNodes: []
             }
             nodes.push(graphNode);
