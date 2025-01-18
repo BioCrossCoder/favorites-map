@@ -1,14 +1,8 @@
-export type NodeData = {
-    name: string,
-    url: string,
-    relatedNodes: string[],
-}
+import * as t from 'io-ts';
 
-export type TagData = {
-    id: string,
-    name: string,
-    labeledNodes: string[],
-}
+export type NodeData = t.TypeOf<typeof TNodeData>;
+
+export type TagData = t.TypeOf<typeof TTagData>;
 
 export const enum Action {
     UpsertNode,
@@ -44,12 +38,28 @@ export type SearchRequest = {
     data: string,
 }
 
+const TNodeData = t.type({
+    name: t.string,
+    url: t.string,
+    relatedNodes: t.array(t.string),
+});
+
+const TTagData = t.type({
+    id: t.string,
+    name: t.string,
+    labeledNodes: t.array(t.string),
+});
+
+export const TFavoritesMapData = t.exact(t.type({
+    nodes: t.array(TNodeData),
+    tags: t.array(TTagData),
+}));
+
+export type FavoritesMapData = t.TypeOf<typeof TFavoritesMapData>;
+
 export type ImportRequest = {
     action: Action.Import,
-    data: {
-        nodes: NodeData[],
-        tags: TagData[],
-    },
+    data: FavoritesMapData,
 }
 
 export type OperationMessage = UpsertRequest<UpsertAction> | DeleteRequest<DeleteAction> | SearchRequest | ImportRequest;

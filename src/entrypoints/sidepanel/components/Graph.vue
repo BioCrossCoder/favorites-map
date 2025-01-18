@@ -3,8 +3,10 @@ import LayoutMain from '@/components/LayoutMain.vue';
 import { createGraphConfig } from '@/composables/config';
 import { useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
 import { buildGraphEdges, buildGraphNodes, handleMouseEnter, handleMouseLeave } from '@/composables/utils';
-import { NodeData } from '@/interface';
+import { Action, FavoritesMapData, ImportRequest, TFavoritesMapData } from '@/interface';
 import { Download, Upload, Star, StarFilled } from '@element-plus/icons-vue';
+import { genFileId, UploadFile, UploadInstance, UploadRawFile } from 'element-plus';
+import { isRight } from 'fp-ts/lib/Either';
 import * as vNG from 'v-network-graph';
 import { useRouter } from 'vue-router';
 
@@ -65,14 +67,59 @@ function handleClickVisit() {
 function handleMouseLeaveHover() {
     handleMouseLeave(hoverNode);
 }
-function handleClickUpload() {
-
+const upload = ref<UploadInstance>();
+function handleExceed(files: File[]) {
+    upload.value!.clearFiles();
+    const file = files[0] as UploadRawFile;
+    file.uid = genFileId();
+    upload.value!.handleStart(file);
+}
+function handleUploadSuccess(_response: any, uploadFile: UploadFile) {
+    setTimeout(() => {
+        uploadFail.value = false;
+    }, 0);
+    if (uploadFail.value) {
+        return
+    }
+    uploadFile.raw!.text().then((content: string) => {
+        const message: ImportRequest = {
+            action: Action.Import,
+            data: JSON.parse(content) as FavoritesMapData
+        }
+        browser.runtime.sendMessage(message);
+    });
+}
+const uploadFail = ref(false);
+function handleBeforeUpload(rawFile: UploadRawFile) {
+    rawFile.text().then((content: string) => {
+        try {
+            if (!isRight(TFavoritesMapData.decode(JSON.parse(content)))) {
+                throw Error('invalid data format in file contents.');
+            }
+            uploadFail.value = false;
+        } catch (err) {
+            uploadFail.value = true;
+            alert(err);
+        }
+    });
 }
 function handleMouseEnterUpload() {
     handleMouseEnter('Import', hoverNode);
 }
 function handleClickDownload() {
-
+    const keyword = ref('');
+    const data: FavoritesMapData = {
+        nodes: store.searchNodes(keyword).value,
+        tags: store.searchTags(keyword).value,
+    };
+    const blob = new Blob([JSON.stringify(data)], { type: 'text/json' });
+    const url = URL.createObjectURL(blob);
+    chrome.downloads.download({
+        url: url,
+        filename: 'favorites-map-data.json',
+        conflictAction: 'uniquify'
+    });
+    URL.revokeObjectURL(url);
 }
 function handleMouseEnterDownload() {
     handleMouseEnter('Export', hoverNode);
@@ -101,10 +148,13 @@ function handleMouseLeaveStar() {
                     <el-tag>{{ count }}</el-tag>
                 </el-col>
                 <el-col :span="5">
-                    <el-icon size="20" class="icon" @click="handleClickUpload" @mouseenter="handleMouseEnterUpload"
-                        @mouseleave="handleMouseLeaveHover">
-                        <Upload />
-                    </el-icon>
+                    <el-upload ref="upload" class="upload" :limit="1" :on-exceed="handleExceed" :show-file-list="false"
+                        :on-success="handleUploadSuccess" :before-upload="handleBeforeUpload">
+                        <el-icon size="20" class="icon" @mouseenter="handleMouseEnterUpload"
+                            @mouseleave="handleMouseLeaveHover">
+                            <Upload />
+                        </el-icon>
+                    </el-upload>
                     <el-icon size="20" class="icon" @click="handleClickDownload" @mouseenter="handleMouseEnterDownload"
                         @mouseleave="handleMouseLeaveHover">
                         <Download />
@@ -158,6 +208,10 @@ $header-height: 2*common.$bar-height;
     align-content: center;
     white-space: normal;
     word-break: break-all;
+}
+
+.upload {
+    display: inline-flex;
 }
 
 .icon {
