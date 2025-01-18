@@ -147,7 +147,7 @@ function handleMouseLeaveStar() {
                 <el-col :span="6">
                     <el-tag>{{ count }}</el-tag>
                 </el-col>
-                <el-col :span="5">
+                <el-col :span="5.5">
                     <el-upload ref="upload" class="upload" :limit="1" :on-exceed="handleExceed" :show-file-list="false"
                         :on-success="handleUploadSuccess" :before-upload="handleBeforeUpload">
                         <el-icon size="20" class="icon" @mouseenter="handleMouseEnterUpload"
