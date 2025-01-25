@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useFavoritesMapStore, useSelectedNodesStore } from "@/composables/store";
 import { Search } from "@element-plus/icons-vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import EditHeader from "./EditHeader.vue";
 import LayoutMain from "@/components/LayoutMain.vue";
 import { buildTextState, deleteItem, upsertNode } from "@/composables/utils";
@@ -11,6 +11,7 @@ const { text: title, isNotEmpty: canSave } = buildTextState();
 const id = ref('');
 const data = useFavoritesMapStore();
 const store = useSelectedNodesStore();
+const route = useRoute();
 onMounted(() => {
     browser.tabs
         .query({
@@ -20,7 +21,7 @@ onMounted(() => {
         .then((tabs: chrome.tabs.Tab[]) => {
             id.value = tabs[0].url as string;
             const node = data.selectNode(id.value);
-            title.value = node?.name ?? tabs[0].title as string;
+            title.value = route.query?.name as string ?? node?.name ?? tabs[0].title as string;
             store.load(node?.relatedNodes ?? []);
         });
 });
@@ -33,6 +34,14 @@ function handleClickMore() {
             name: title.value,
         },
     });
+}
+function handleClickSearch() {
+    router.push({
+        path: '/search',
+        query: {
+            name: title.value,
+        }
+    })
 }
 </script>
 
@@ -47,8 +56,7 @@ function handleClickMore() {
                     <el-input v-model="title" autofocus />
                 </el-form-item>
                 <el-form-item label="Neighbors">
-                    <el-button type="primary" :icon="Search" class="search-btn"
-                        @click="() => router.push({ path: '/search' })">
+                    <el-button type="primary" :icon="Search" class="search-btn" @click="handleClickSearch">
                         View / Select in Map
                     </el-button>
                 </el-form-item>
