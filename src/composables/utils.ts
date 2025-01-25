@@ -209,13 +209,9 @@ export function buildSearchStates(): {
 }
 
 export function textMatch<T extends { name: string }>(data: T[], keyword: string): T[] {
-    return data.filter((item: T) => !keyword || item.name.toLowerCase().includes(keyword));
+    return data.filter((item: T) => item.name.trim().toLowerCase().includes(keyword.trim().toLowerCase()));
 }
 
 export function search<T extends { name: string }>(data: Record<string, T>, keyword: string): Set<T> {
-    if (!data) {
-        return new Set<T>();
-    }
-    keyword = keyword.trim().toLowerCase();
     return new Set(textMatch(Object.values(data), keyword));
 }
