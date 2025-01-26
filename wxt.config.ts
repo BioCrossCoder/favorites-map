@@ -7,7 +7,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-  extensionApi: 'chrome',
+  extensionApi: 'webextension-polyfill',
   srcDir: 'src',
   modules: ['@wxt-dev/module-vue'],
   manifest: {

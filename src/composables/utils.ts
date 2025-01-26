@@ -215,3 +215,19 @@ export function textMatch<T extends { name: string }>(data: T[], keyword: string
 export function search<T extends { name: string }>(data: Record<string, T>, keyword: string): Set<T> {
     return new Set(textMatch(Object.values(data), keyword));
 }
+
+function wait(result: { finish: boolean }) {
+    setTimeout(() => {
+        if (!result.finish) {
+            wait(result);
+        }
+    }, 0);
+}
+
+export function sync(f: () => Promise<any>) {
+    const result = { finish: false };
+    f().then(() => {
+        result.finish = true;
+    });
+    wait(result);
+}

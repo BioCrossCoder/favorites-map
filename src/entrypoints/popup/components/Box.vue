@@ -6,6 +6,7 @@ import EditHeader from "./EditHeader.vue";
 import LayoutMain from "@/components/LayoutMain.vue";
 import { buildTextState, deleteItem, upsertNode } from "@/composables/utils";
 import { Action } from "@/interface";
+import { Tabs } from "wxt/browser";
 
 const { text: title, isNotEmpty: canSave } = buildTextState();
 const id = ref('');
@@ -18,7 +19,7 @@ onMounted(() => {
             active: true,
             currentWindow: true,
         })
-        .then((tabs: chrome.tabs.Tab[]) => {
+        .then((tabs: Tabs.Tab[]) => {
             id.value = tabs[0].url as string;
             const node = data.selectNode(id.value);
             title.value = route.query?.name as string ?? node?.name ?? tabs[0].title as string;
@@ -83,6 +84,7 @@ function handleClickSearch() {
     width: 300px;
     height: 180px;
     @extend %container-row-padding;
+    overflow-x: hidden;
 }
 
 .header {
