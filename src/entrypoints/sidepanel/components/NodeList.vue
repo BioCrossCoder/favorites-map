@@ -2,17 +2,26 @@
 import { Edit, Location, Search } from '@element-plus/icons-vue';
 import { useGraphPositionStore } from '@/composables/store';
 import { NodeData } from '@/interface';
+import { isFirefox } from 'element-plus/es/utils/browser.mjs';
+import { sync } from '@/composables/utils';
 
 const data = inject('nodeData') as Ref<NodeData[]>;
 const position = useGraphPositionStore();
 function handleClickEdit(url: string) {
     const urlPrefix: string = browser.runtime.getURL('/popup.html');
     const urlPath: string = `${urlPrefix}#/edit?id=${encodeURIComponent(url)}`;
-    browser.action.setPopup({ popup: urlPath }).then(() => {
-        browser.action.openPopup().finally(() => {
-            browser.action.setPopup({ popup: urlPrefix });
+    if (isFirefox()) {
+        sync(() => browser.browserAction.setPopup({ popup: urlPath }));
+        browser.browserAction.openPopup().finally(() => {
+            browser.browserAction.setPopup({ popup: urlPrefix });
         });
-    });
+    } else {
+        browser.action.setPopup({ popup: urlPath }).then(() => {
+            browser.action.openPopup().finally(() => {
+                browser.action.setPopup({ popup: urlPrefix });
+            });
+        });
+    }
 }
 </script>
 

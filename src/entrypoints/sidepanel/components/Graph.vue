@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import LayoutMain from '@/components/LayoutMain.vue';
 import { createGraphConfig } from '@/composables/config';
-import { useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
+import { useGraphPositionStore, useFavoritesMapStore, useSelectedTagsStore } from '@/composables/store';
 import { buildGraphEdges, buildGraphNodes, handleMouseEnter, handleMouseLeave } from '@/composables/utils';
 import { Action, FavoritesMapData, ImportRequest, TFavoritesMapData } from '@/interface';
 import { Download, Upload, Star, StarFilled } from '@element-plus/icons-vue';
@@ -114,12 +114,13 @@ function handleClickDownload() {
     };
     const blob = new Blob([JSON.stringify(data)], { type: 'text/json' });
     const url = URL.createObjectURL(blob);
-    chrome.downloads.download({
+    browser.downloads.download({
         url: url,
         filename: 'favorites-map-data.json',
         conflictAction: 'uniquify'
+    }).then(() => {
+        URL.revokeObjectURL(url);
     });
-    URL.revokeObjectURL(url);
 }
 function handleMouseEnterDownload() {
     handleMouseEnter('Export', hoverNode);
