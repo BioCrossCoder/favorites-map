@@ -27,8 +27,10 @@ function handleClickEdit(url: string) {
 
 <template>
     <el-row v-for="node in data" class="row">
-        <el-tooltip placement="bottom-end">
-            <template #content>{{ node.name }}<br />{{ node.url }}</template>
+        <el-tooltip placement="bottom">
+            <template #content>
+                <el-row class="tip">{{ node.url }}</el-row>
+            </template>
             <el-text class="txt" @click="() => browser.tabs.update({ url: node.url })" :icon="Search">
                 {{ node.name }}
             </el-text>
@@ -50,6 +52,13 @@ $row-height: common.$bar-height*0.8;
 .row {
     @extend %container-row-padding;
     @include common.block-with-height($row-height);
+}
+
+.tip {
+    max-width: calc(100vw - 120px);
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-all;
 }
 
 .txt {
