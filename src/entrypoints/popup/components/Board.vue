@@ -3,7 +3,7 @@ import { useRoute } from 'vue-router';
 import { createGraphConfig } from '@/composables/config';
 import EditHeader from '../components/EditHeader.vue';
 import LayoutMain from '@/components/LayoutMain.vue';
-import { Search } from '@element-plus/icons-vue';
+import { Delete, Search } from '@element-plus/icons-vue';
 import { buildSearchStates, buildSelectGraph, buildTextState, deleteItem, upsertNode, buildSelectedNodesStates, upsertTag } from '@/composables/utils';
 import { useSelectedTagsStore } from '@/composables/store';
 import { Action, TagData } from '@/interface';
@@ -52,6 +52,10 @@ function createTagIfNotExist() {
         }
     }
 }
+function handleDelete(event: MouseEvent, tagID: string) {
+    event.preventDefault();
+    deleteItem(tagID, Action.DeleteTag, true);
+}
 </script>
 
 <template>
@@ -74,7 +78,15 @@ function createTagIfNotExist() {
                             </el-tooltip>
                         </template>
                         <el-option v-for="item in tagData" :key="item.id" :label="item.name" :value="item.id">
-                            <el-tag type="primary">{{ item.name }}</el-tag>
+                            <el-row justify="space-between" align="middle">
+                                <el-tag type="primary">{{ item.name }}</el-tag>
+                                <el-button type="text" class="icon"
+                                    @click="(event: MouseEvent) => handleDelete(event, item.id)">
+                                    <el-icon>
+                                        <Delete />
+                                    </el-icon>
+                                </el-button>
+                            </el-row>
                         </el-option>
                     </el-select>
                 </el-form-item>
@@ -156,5 +168,13 @@ function createTagIfNotExist() {
 
 .footer {
     @include common.block-with-height(common.$bar-height);
+}
+
+.icon {
+    color: grey;
+
+    &:hover {
+        color: red;
+    }
 }
 </style>
