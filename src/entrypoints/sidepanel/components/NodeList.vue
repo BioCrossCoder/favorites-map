@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Edit, Location, Search } from '@element-plus/icons-vue';
+import { Edit, Location, Search, Link } from '@element-plus/icons-vue';
 import { useGraphPositionStore } from '@/composables/store';
 import { NodeData } from '@/interface';
 import { isFirefox } from 'element-plus/es/utils/browser.mjs';
@@ -35,6 +35,9 @@ function handleClickEdit(url: string) {
                 {{ node.name }}
             </el-text>
         </el-tooltip>
+        <el-icon size="20" class="icon" @click="() => browser.tabs.create({ url: node.url })">
+            <Link />
+        </el-icon>
         <el-icon size="20" class="icon" @click="() => position.set(node.url)">
             <Location />
         </el-icon>
@@ -65,7 +68,7 @@ $row-height: common.$bar-height*0.8;
     @extend %text-truncate;
     @extend %hover-style;
     align-content: center;
-    width: calc(100% - 2*(common.$icon-size + 2*common.$icon-padding));
+    width: calc(100% - 3*(common.$icon-size + 2*common.$icon-padding));
 }
 
 .icon {
