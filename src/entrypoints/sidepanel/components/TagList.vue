@@ -78,7 +78,7 @@ function handleClickCancelRename(event: MouseEvent) {
         </el-button>
     </el-row>
     <el-row class="row" v-if="input">
-        <el-input v-model="entry">
+        <el-input v-model="entry" @keyup.enter="handleClickOK" @keyup.esc="handleClickCancel">
             <template #suffix>
                 <el-container>
                     <el-button type="text" @click="handleClickOK" :disabled="!canSave">
@@ -97,7 +97,9 @@ function handleClickCancelRename(event: MouseEvent) {
     </el-row>
     <el-checkbox-group v-model="checkList" :max="5" class="checkgroup">
         <el-checkbox v-for="tag in data" :value="tag.id" class="checkbox">
-            <el-input v-if="edit === tag.id" v-model="entry">
+            <el-input v-if="edit === tag.id" v-model="entry"
+                @keyup.enter="(event: MouseEvent) => handleClickFinish(event, tag.id)"
+                @keyup.esc="handleClickCancelRename">
                 <template #suffix>
                     <el-container>
                         <el-button type="text" @click="(event: MouseEvent) => handleClickFinish(event, tag.id)"
