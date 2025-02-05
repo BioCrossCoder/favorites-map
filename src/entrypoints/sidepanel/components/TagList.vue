@@ -2,11 +2,13 @@
 import { Action, TagData } from '@/interface';
 import { upsertTag, deleteItem } from '@/composables/utils';
 import { useSelectedTagsStore, useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
-import { Plus, Delete, Check, Close, Edit } from '@element-plus/icons-vue';
+import { Plus, Delete, Check, Close, Edit, Minus } from '@element-plus/icons-vue';
 
 // [InitDataAndStatesForDisplay]
 const data = inject('tagData') as Ref<TagData[]>;
 const checkList = useSelectedTagsStore().getState();
+const checkCount = computed<number>(() => checkList.value.length);
+const maxCount = 5;
 const position = useGraphPositionStore();
 const store = useFavoritesMapStore();
 onMounted(() => {
@@ -17,11 +19,14 @@ const entry = ref('');
 const input = ref(false);
 const edit = ref('');
 const canSave = computed<boolean>(() => entry.value !== '');
-const canDelete = computed<boolean>(() => checkList.value.length > 0 && !input.value); // [/]
+const canClear = computed<boolean>(() => checkList.value.length > 0 && !input.value); // [/]
 function handleClickAdd() {
     edit.value = '';
     entry.value = '';
     input.value = true;
+}
+function handleClickClear() {
+    checkList.value = [];
 }
 function handleClickOK() {
     upsertTag(crypto.randomUUID(), entry.value, []).then((success: boolean) => {
@@ -36,11 +41,10 @@ function handleClickCancel() {
     entry.value = '';
     input.value = false;
 }
-function handleClickDelete() {
-    checkList.value.map((tag: string) => {
-        deleteItem(tag, Action.DeleteTag, true);
-    });
-    checkList.value = [];
+function handleClickDelete(event: MouseEvent, tagID: string) {
+    event.preventDefault();
+    deleteItem(tagID, Action.DeleteTag, true);
+    checkList.value = checkList.value.filter((id: string) => id !== tagID);
 }
 function handleClickRename(event: MouseEvent, tag: TagData) {
     event.preventDefault();
@@ -67,19 +71,22 @@ function handleClickCancelRename(event: MouseEvent) {
 </script>
 
 <template>
-    <el-row class="row" justify="center">
+    <el-row class="row top-bar" justify="center">
         <el-button type="primary" @click="handleClickAdd" :disabled="input" class="icon-btn">
             <el-icon>
                 <Plus />
             </el-icon>
         </el-button>
-        <el-button type="primary" @click="handleClickDelete" :disabled="!canDelete" class="icon-btn">
+        <el-tag :class="checkCount === maxCount ? 'tag-warn' : ''">
+            {{ checkCount }}/{{ maxCount }}
+        </el-tag>
+        <el-button type="primary" @click="handleClickClear" class="icon-btn" :disabled="!canClear">
             <el-icon>
-                <Delete />
+                <Minus />
             </el-icon>
         </el-button>
     </el-row>
-    <el-row class="row" v-if="input">
+    <el-row class="row sub-bar" v-if="input">
         <el-input v-model="entry" @keyup.enter="handleClickOK" @keyup.esc="handleClickCancel">
             <template #suffix>
                 <el-container>
@@ -97,39 +104,45 @@ function handleClickCancelRename(event: MouseEvent) {
             </template>
         </el-input>
     </el-row>
-    <el-checkbox-group v-model="checkList" :max="5" class="checkgroup">
-        <el-checkbox v-for="tag in data" :value="tag.id" class="checkbox">
-            <el-input v-if="edit === tag.id" v-model="entry"
-                @keyup.enter="(event: MouseEvent) => handleClickFinish(event, tag.id)"
-                @keyup.esc="handleClickCancelRename">
-                <template #suffix>
-                    <el-container>
-                        <el-button type="text" @click="(event: MouseEvent) => handleClickFinish(event, tag.id)"
-                            :disabled="!canSave">
-                            <el-icon>
-                                <Check />
-                            </el-icon>
-                        </el-button>
-                        <el-button type="text" @click="handleClickCancelRename">
-                            <el-icon>
-                                <Close />
-                            </el-icon>
-                        </el-button>
-                    </el-container>
-                </template>
-            </el-input>
-            <el-row justify="space-between" class="check-row" v-else>
-                <el-col :span="21">
-                    <el-tag type="primary">{{ tag.name }}</el-tag>
-                </el-col>
-                <el-col :span="3">
-                    <el-icon size="20" class="icon" @click="(event: MouseEvent) => handleClickRename(event, tag)">
-                        <Edit />
-                    </el-icon>
-                </el-col>
-            </el-row>
-        </el-checkbox>
-    </el-checkbox-group>
+    <el-main :class="input ? 'body-short' : 'body sub-bar'">
+        <el-checkbox-group v-model="checkList" :max="maxCount" class="check-group">
+            <el-checkbox v-for="tag in data" :value="tag.id" class="checkbox">
+                <el-input v-if="edit === tag.id" v-model="entry"
+                    @keyup.enter="(event: MouseEvent) => handleClickFinish(event, tag.id)"
+                    @keyup.esc="handleClickCancelRename">
+                    <template #suffix>
+                        <el-container>
+                            <el-button type="text" @click="(event: MouseEvent) => handleClickFinish(event, tag.id)"
+                                :disabled="!canSave">
+                                <el-icon>
+                                    <Check />
+                                </el-icon>
+                            </el-button>
+                            <el-button type="text" @click="handleClickCancelRename">
+                                <el-icon>
+                                    <Close />
+                                </el-icon>
+                            </el-button>
+                        </el-container>
+                    </template>
+                </el-input>
+                <el-row justify="space-between" class="check-row" v-else>
+                    <el-col :span="20">
+                        <el-tag type="primary">{{ tag.name }}</el-tag>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-icon size="20" class="icon" @click="(event: MouseEvent) => handleClickRename(event, tag)">
+                            <Edit />
+                        </el-icon>
+                        <el-icon size="20" class="icon del"
+                            @click="(event: MouseEvent) => handleClickDelete(event, tag.id)">
+                            <Delete />
+                        </el-icon>
+                    </el-col>
+                </el-row>
+            </el-checkbox>
+        </el-checkbox-group>
+    </el-main>
 </template>
 
 <style lang="scss" scoped>
@@ -142,12 +155,29 @@ $row-height: common.$bar-height*0.8;
     @include common.block-with-height($row-height);
 }
 
+.top-bar {
+    position: fixed;
+    width: 100%;
+}
+
+.sub-bar {
+    margin-top: $row-height;
+}
+
+.body {
+    @include common.block-with-height(calc(100% - $row-height));
+}
+
+.body-short {
+    @include common.block-with-height(calc(100% - 2*$row-height));
+}
+
 .check-row {
     width: calc(100vw - 2*(common.$icon-size));
     align-items: center;
 }
 
-.checkgroup {
+.check-group {
     overflow-x: hidden;
 }
 
@@ -157,14 +187,24 @@ $row-height: common.$bar-height*0.8;
 
 .icon-btn {
     @extend %reset;
+    @extend %row-margin;
     height: common.$icon-size * 1.2;
     width: common.$icon-size *1.2;
-    margin-left: common.$icon-size *0.6;
 }
 
 .icon {
     @include common.icon($row-height);
     align-content: center;
     color: black;
+}
+
+.tag-warn {
+    color: red;
+}
+
+.del {
+    &:hover {
+        color: red;
+    }
 }
 </style>
