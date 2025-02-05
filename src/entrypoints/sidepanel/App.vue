@@ -2,7 +2,11 @@
 </script>
 
 <template>
-    <RouterView />
+    <RouterView class="router-view" />
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.router-view {
+    min-width: 350px;
+}
+</style>
