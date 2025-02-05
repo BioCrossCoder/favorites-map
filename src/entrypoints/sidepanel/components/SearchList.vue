@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import LayoutMain from '@/components/LayoutMain.vue';
-import { buildSearchStates } from '@/composables/utils';
+import { buildSearchStates, _ } from '@/composables/utils';
 import { Search } from '@element-plus/icons-vue';
 import NodeList from './NodeList.vue';
 import TagList from './TagList.vue';
@@ -22,7 +22,8 @@ provide('tagData', tagData);
                     </el-text>
                 </template>
                 <template #suffix>
-                    <el-switch v-model="showTags" active-text="tag" inactive-text="url" inline-prompt />
+                    <el-switch v-model="showTags" :active-text="_('switchTag')" :inactive-text="_('switchURL')"
+                        inline-prompt class="switch" />
                 </template>
             </el-input>
         </el-header>
@@ -48,5 +49,9 @@ $row-height: common.$bar-height*0.8;
 
 .txt {
     color: common.$theme-blue;
+}
+
+.switch {
+    --el-switch-off-color: #{common.$theme-blue};
 }
 </style>

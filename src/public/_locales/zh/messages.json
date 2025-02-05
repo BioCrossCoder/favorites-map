@@ -46,5 +46,47 @@
     },
     "selectNoDataText": {
         "message": "暂无数据"
+    },
+    "tagImport": {
+        "message": "导入"
+    },
+    "tagExport": {
+        "message": "导出"
+    },
+    "tagMigrate": {
+        "message": "从收藏夹迁移"
+    },
+    "btnVisit": {
+        "message": "访 问"
+    },
+    "btnOverview": {
+        "message": "概 览"
+    },
+    "switchURL": {
+        "message": "网址"
+    },
+    "switchTag": {
+        "message": "标签"
+    },
+    "btnCancel": {
+        "message": "取 消"
+    },
+    "switchName": {
+        "message": "名称"
+    },
+    "switchURL2": {
+        "message": "网址"
+    },
+    "selectAll": {
+        "message": "全选"
+    },
+    "alertNoTarget": {
+        "message": "未选择目标节点！"
+    },
+    "alertInvalidFormat": {
+        "message": "文件内容中的数据格式无效！"
+    },
+    "alertTagNameConflict": {
+        "message": "标签名称重复！"
     }
 }

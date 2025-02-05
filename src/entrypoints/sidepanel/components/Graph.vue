@@ -2,7 +2,7 @@
 import LayoutMain from '@/components/LayoutMain.vue';
 import { createGraphConfig } from '@/composables/config';
 import { useGraphPositionStore, useFavoritesMapStore, useSelectedTagsStore } from '@/composables/store';
-import { buildGraphEdges, buildGraphNodes, handleMouseEnter, handleMouseLeave } from '@/composables/utils';
+import { buildGraphEdges, buildGraphNodes, handleMouseEnter, handleMouseLeave, _ } from '@/composables/utils';
 import { Action, FavoritesMapData, ImportRequest, TFavoritesMapData } from '@/interface';
 import { Download, Upload, Star, StarFilled } from '@element-plus/icons-vue';
 import { genFileId, UploadFile, UploadInstance, UploadRawFile } from 'element-plus';
@@ -58,7 +58,7 @@ onMounted(() => {
 }); // [/]
 function handleClickVisit() {
     if (!position.value) {
-        alert('No Target Node Selected')
+        alert(_('alertNoTarget'))
     } else {
         browser.tabs.update({ url: position.value });
     }
@@ -94,7 +94,7 @@ function handleBeforeUpload(rawFile: UploadRawFile) {
         // [InterceptFileFormatInvalid]
         try {
             if (!isRight(TFavoritesMapData.decode(JSON.parse(content)))) {
-                throw Error('invalid data format in file contents.');
+                throw Error(_('alertInvalidFormat'));
             }
             uploadFail.value = false;
         } catch (err) {
@@ -125,14 +125,14 @@ const router = useRouter();
 // [HandleHover]
 const hoverStar = ref(false);
 function handleMouseEnterUpload() {
-    handleMouseEnter('Import', hoverNode);
+    handleMouseEnter(_('tagImport'), hoverNode);
 }
 function handleMouseEnterDownload() {
-    handleMouseEnter('Export', hoverNode);
+    handleMouseEnter(_('tagExport'), hoverNode);
 }
 function handleMouseEnterStar() {
     hoverStar.value = true;
-    handleMouseEnter('Migrate from Favorites', hoverNode);
+    handleMouseEnter(_('tagMigrate'), hoverNode);
 }
 function handleMouseLeaveStar() {
     hoverStar.value = false;
@@ -148,8 +148,8 @@ function handleMouseLeaveHover() {
         <el-header class="header">
             <el-row justify="space-between" align="middle" class="row">
                 <el-col :span="12">
-                    <el-button type="primary" @click="handleClickVisit">Visit</el-button>
-                    <el-button @click="() => position.set('')">Overview</el-button>
+                    <el-button type="primary" @click="handleClickVisit">{{ _('btnVisit') }}</el-button>
+                    <el-button @click="() => position.set('')">{{ _('btnOverview') }}</el-button>
                 </el-col>
                 <el-col :span="6">
                     <el-tag>{{ count }}</el-tag>

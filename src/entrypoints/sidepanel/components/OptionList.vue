@@ -4,7 +4,7 @@ import { useFavoritesMapStore } from '@/composables/store';
 import { Action, ImportRequest, NodeData, TagData } from '@/interface';
 import { Search, Switch } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
-import { textMatch } from '@/composables/utils';
+import { textMatch, _ } from '@/composables/utils';
 
 // [InitStates]
 const keyword = ref('');
@@ -105,6 +105,7 @@ const showURL = ref(false);
 function handleClickSwitch() {
     checkList.value = Array.from(optionMap.value.keys().filter((value: string) => !checkSet.value.has(value)));
 }
+const isEnglish = ref<boolean>(browser.i18n.getUILanguage().replace('_', '-').toLowerCase() === 'en-us');
 </script>
 
 <template>
@@ -124,15 +125,16 @@ function handleClickSwitch() {
             </el-input>
             <el-row justify="space-between">
                 <el-col :span="10">
-                    <el-button type="primary" @click="handleClickOK">OK</el-button>
-                    <el-button @click="router.back">Cancel</el-button>
+                    <el-button type="primary" @click="handleClickOK">{{ _('btnOK') }}</el-button>
+                    <el-button @click="router.back">{{ _('btnCancel') }}</el-button>
                 </el-col>
-                <el-col :span="showURL ? 3 : 4">
-                    <el-switch v-model="showURL" active-text="url" inactive-text="name" inline-prompt />
+                <el-col :span="isEnglish ? 4 : 3">
+                    <el-switch v-model="showURL" :active-text="_('switchURL2')" :inactive-text="_('switchName')"
+                        inline-prompt />
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="isEnglish ? 8 : 6">
                     <el-button class="txt-btn">
-                        <el-checkbox label="Select All" v-model="checkAll" :indeterminate="indeterminate" />
+                        <el-checkbox :label="_('selectAll')" v-model="checkAll" :indeterminate="indeterminate" />
                     </el-button>
                     <el-button class="txt-btn">
                         <el-icon @click="handleClickSwitch">

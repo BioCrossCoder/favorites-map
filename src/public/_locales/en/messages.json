@@ -46,5 +46,47 @@
     },
     "selectNoDataText": {
         "message": "No Data"
+    },
+    "tagImport": {
+        "message": "Import"
+    },
+    "tagExport": {
+        "message": "Export"
+    },
+    "tagMigrate": {
+        "message": "Migrate from Favorites"
+    },
+    "btnVisit": {
+        "message": "Visit"
+    },
+    "btnOverview": {
+        "message": "Overview"
+    },
+    "switchURL": {
+        "message": "url"
+    },
+    "switchTag": {
+        "message": "tag"
+    },
+    "btnCancel": {
+        "message": "Cancel"
+    },
+    "switchName": {
+        "message": "name"
+    },
+    "switchURL2": {
+        "message": "url "
+    },
+    "selectAll": {
+        "message": "Select All"
+    },
+    "alertNoTarget": {
+        "message": "No Target Node Selected!"
+    },
+    "alertInvalidFormat": {
+        "message": "Invalid Data Format in File Contents!"
+    },
+    "alertTagNameConflict": {
+        "message": "Tag Name Duplicated!"
     }
 }

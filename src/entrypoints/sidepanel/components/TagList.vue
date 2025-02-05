@@ -33,7 +33,7 @@ function handleClickOK() {
         if (success) {
             handleClickCancel();
         } else {
-            alert('Tag Name Duplicated!');
+            alert(_('alertTagNameConflict'));
         }
     });
 }
@@ -59,7 +59,7 @@ function handleClickFinish(event: MouseEvent, id: string) {
             edit.value = '';
             entry.value = '';
         } else {
-            alert('Tag Name Duplicated!');
+            alert(_('alertTagNameConflict'));
         }
     })
 }
