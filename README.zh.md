@@ -1,21 +1,21 @@
-# Favorites Map
+# 收藏夹地图
 
-English | [中文](README.zh.md)
+[English](README.md) | 中文
 
-## Introduction
+## 简介
 
-***A browser extension providing better favorites management for human.***
+***一个浏览器插件，为人类提供更好的收藏夹管理。***
 
-## Features
+## 功能
 
-1. Manage Favorites With `Relational Graph` instead of `File Tree`.
+1. 使用`关系图`代替`文件树`来管理收藏夹。
 ![management.gif](https://raw.githubusercontent.com/BioCrossCoder/favorites-map/refs/heads/main/images/management.gif)
 
-2. Easy to migrate from built-in `Favorites` of browser.
+2. 易于从浏览器的内置`收藏夹`迁移。
 ![migrate.gif](https://raw.githubusercontent.com/BioCrossCoder/favorites-map/refs/heads/main/images/migrate.gif)
 
-3. Support quick navigation by `Tag`.
+3. 支持通过`标签`快速导航。
 ![tag.gif](https://raw.githubusercontent.com/BioCrossCoder/favorites-map/refs/heads/main/images/tag.gif)
 
-4. Traditional `Text Search` as a supplement.
+4. 传统的`文本搜索`作为补充。
 ![search.gif](https://raw.githubusercontent.com/BioCrossCoder/favorites-map/refs/heads/main/images/search.gif)
