@@ -10,18 +10,21 @@ const position = useGraphPositionStore();
 function handleClickEdit(url: string) {
     const urlPrefix: string = browser.runtime.getURL('/popup.html');
     const urlPath: string = `${urlPrefix}#/edit?id=${encodeURIComponent(url)}`;
+    // [OpenDirectionalPopupInFirefox]
     if (isFirefox()) {
         sync(() => browser.browserAction.setPopup({ popup: urlPath }));
         browser.browserAction.openPopup().finally(() => {
             browser.browserAction.setPopup({ popup: urlPrefix });
         });
-    } else {
+    } // [/]
+    // [OpenDirectionalPopupInChromeOrEdge]
+    else {
         browser.action.setPopup({ popup: urlPath }).then(() => {
             browser.action.openPopup().finally(() => {
                 browser.action.setPopup({ popup: urlPrefix });
             });
         });
-    }
+    } // [/]
 }
 </script>
 

@@ -8,11 +8,13 @@ import { buildTextState, deleteItem, upsertNode } from "@/composables/utils";
 import { Action } from "@/interface";
 import { Tabs } from "wxt/browser";
 
+// [InitStates]
 const { text: title, isNotEmpty: canSave } = buildTextState();
 const id = ref('');
 const data = useFavoritesMapStore();
 const store = useSelectedNodesStore();
-const route = useRoute();
+const route = useRoute(); // [/]
+// [LoadNodeInfo]
 onMounted(() => {
     browser.tabs
         .query({
@@ -25,7 +27,8 @@ onMounted(() => {
             title.value = route.query?.name as string ?? node?.name ?? tabs[0].title as string;
             store.load(node?.relatedNodes ?? []);
         });
-});
+}); // [/]
+// [RouteJump]
 const router = useRouter();
 function handleClickMore() {
     router.push({
@@ -43,7 +46,7 @@ function handleClickSearch() {
             name: title.value,
         }
     })
-}
+} // [/]
 </script>
 
 <template>

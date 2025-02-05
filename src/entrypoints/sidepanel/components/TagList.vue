@@ -4,18 +4,20 @@ import { upsertTag, deleteItem } from '@/composables/utils';
 import { useSelectedTagsStore, useGraphPositionStore, useFavoritesMapStore } from '@/composables/store';
 import { Plus, Delete, Check, Close, Edit } from '@element-plus/icons-vue';
 
+// [InitDataAndStatesForDisplay]
 const data = inject('tagData') as Ref<TagData[]>;
 const checkList = useSelectedTagsStore().getState();
 const position = useGraphPositionStore();
 const store = useFavoritesMapStore();
 onMounted(() => {
     checkList.value = store.getTags(position.value).value.map((tag: TagData) => tag.id);
-});
+}); // [/]
+// [InitEditStates]
 const entry = ref('');
 const input = ref(false);
 const edit = ref('');
 const canSave = computed<boolean>(() => entry.value !== '');
-const canDelete = computed<boolean>(() => checkList.value.length > 0 && !input.value);
+const canDelete = computed<boolean>(() => checkList.value.length > 0 && !input.value); // [/]
 function handleClickAdd() {
     edit.value = '';
     entry.value = '';

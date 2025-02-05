@@ -32,6 +32,7 @@ class GraphStorage {
         if (!dataToLoad) {
             return
         }
+        // [BuildGraphInMemoryFromStore]
         const relatedNodes = new Map<string, string[]>();
         dataToLoad.edges.forEach(([id1, id2]) => {
             if (!relatedNodes.has(id1)) {
@@ -45,10 +46,11 @@ class GraphStorage {
         })
         dataToLoad.nodes.forEach(node => {
             data[node.id] = new Node(node.name, node.id, new Set(relatedNodes.get(node.id)));
-        });
+        }); // [/]
         GraphStorage.updateTime = new Date(dataToLoad?.updateTime ?? new Date());
     }
     public static async dump(): Promise<void> {
+        // [BuildDataToStoreFromMemory]
         const nodesData = new Array<NodeMetaData>();
         const edgesData = new Set<string>();
         Object.values(data).forEach((node: Node) => {
@@ -66,7 +68,7 @@ class GraphStorage {
                 return JSON.parse(json) as [string, string];
             }),
             updateTime: GraphStorage.updateTime.getTime(),
-        };
+        }; // [/]
         await storage.setItem(graphStorageKey, dataToDump);
     }
     private static _monitor(): void {

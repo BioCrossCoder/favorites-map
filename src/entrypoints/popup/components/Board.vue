@@ -8,23 +8,29 @@ import { buildSearchStates, buildSelectGraph, buildTextState, deleteItem, upsert
 import { useSelectedTagsStore } from '@/composables/store';
 import { Action, TagData } from '@/interface';
 
+// [InitBasicInfoStates]
 const route = useRoute();
 const { text: title, isNotEmpty: canSave } = buildTextState();
-const id: string = decodeURIComponent(route.query.id as string);
+const id: string = decodeURIComponent(route.query.id as string); // [/]
+// [InitGraphData]
 const { keyword, store, nodeData } = buildSearchStates();
 const tagData = store.searchTags(ref(''));
-const configs = computed(() => createGraphConfig(keyword.value));
+const configs = computed(() => createGraphConfig(keyword.value)); // [/]
+// [InitSelectStates]
 const { selectedNodes, selectedNodesOld, handleClickReset } = buildSelectedNodesStates();
-const selectedTags = useSelectedTagsStore().getState();
+const selectedTags = useSelectedTagsStore().getState(); // [/]
 onMounted(() => {
+    // [LoadTagData]
     setTimeout(() => {
         selectedTags.value = store.getTags(id).value.map((tag: TagData) => tag.id);
-    }, 0);
+    }, 0); // [/]
+    // [LoadNameCache]
     if (route.query.name) {
         title.value = route.query.name as string;
         selectedNodesOld.value = Array.from(selectedNodes.value);
         return;
-    }
+    } // [/]
+    // [LoadAndCacheSelectedNodes]
     const observer = watch(nodeData, () => {
         if (nodeData.value.length > 0) {
             const node = store.selectNode(id);
@@ -33,11 +39,12 @@ onMounted(() => {
             selectedNodesOld.value = Array.from(selectedNodes.value);
             observer.stop();
         }
-    });
+    }); // [/]
 });
+// [BuildGraph]
 const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(nodeData);
 const nodeTotalCount = computed<number>(() => nodeData.value.length);
-const selectedNodeCount = computed<number>(() => selectedNodes.value.length);
+const selectedNodeCount = computed<number>(() => selectedNodes.value.length); // [/]
 function createTagIfNotExist() {
     if (selectedTags.value.length > 5) {
         return;

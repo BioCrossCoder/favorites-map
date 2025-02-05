@@ -10,7 +10,7 @@ import { isRight } from 'fp-ts/lib/Either';
 import * as vNG from 'v-network-graph';
 import { useRouter } from 'vue-router';
 
-// Load data and init states
+// [LoadDataAndInitStates]
 const store = useFavoritesMapStore();
 const selectedTags = useSelectedTagsStore().getState();
 const nodeData = store.filterNodes(selectedTags);
@@ -21,9 +21,8 @@ const configs = computed(() => {
 });
 const selectedNodes = computed(() => position.value ? [position.value] : []);
 const hoverNode = ref('');
-const hintText = computed(() => hoverNode.value || position.value);
-
-// Build graph
+const hintText = computed(() => hoverNode.value || position.value); // [/]
+// [BuildGraph]
 const view = computed(() => {
     if (position.value) {
         const center = store.selectNode(position.value);
@@ -46,7 +45,8 @@ const eventHandlers: vNG.EventHandlers = {
     'node:pointerout': () => {
         handleMouseLeave(hoverNode)
     },
-}
+} // [/]
+// [AutoRelocateGraph]
 const graph = ref<vNG.Instance>();
 onMounted(() => {
     const observer = watch(graph, () => {
@@ -55,8 +55,7 @@ onMounted(() => {
             observer.stop();
         }
     })
-});
-
+}); // [/]
 function handleClickVisit() {
     if (!position.value) {
         alert('No Target Node Selected')
@@ -64,9 +63,7 @@ function handleClickVisit() {
         browser.tabs.update({ url: position.value });
     }
 }
-function handleMouseLeaveHover() {
-    handleMouseLeave(hoverNode);
-}
+// [HandleUpload]
 const upload = ref<UploadInstance>();
 function handleExceed(files: File[]) {
     upload.value!.clearFiles();
@@ -75,23 +72,26 @@ function handleExceed(files: File[]) {
     upload.value!.handleStart(file);
 }
 function handleUploadSuccess(_response: any, uploadFile: UploadFile) {
+    // [SkipWhenUploadFail]
     setTimeout(() => {
         uploadFail.value = false;
     }, 0);
     if (uploadFail.value) {
-        return
-    }
+        return;
+    } // [/]
+    // [ImportDataFromUploadedFile]
     uploadFile.raw!.text().then((content: string) => {
         const message: ImportRequest = {
             action: Action.Import,
             data: JSON.parse(content) as FavoritesMapData
         }
         browser.runtime.sendMessage(message);
-    });
+    }); // [/]
 }
 const uploadFail = ref(false);
 function handleBeforeUpload(rawFile: UploadRawFile) {
     rawFile.text().then((content: string) => {
+        // [InterceptFileFormatInvalid]
         try {
             if (!isRight(TFavoritesMapData.decode(JSON.parse(content)))) {
                 throw Error('invalid data format in file contents.');
@@ -100,19 +100,18 @@ function handleBeforeUpload(rawFile: UploadRawFile) {
         } catch (err) {
             uploadFail.value = true;
             alert(err);
-        }
+        } // [/]
     });
-}
-function handleMouseEnterUpload() {
-    handleMouseEnter('Import', hoverNode);
-}
+} // [/]
 function handleClickDownload() {
+    // [PackageFileData]
     const keyword = ref('');
     const data: FavoritesMapData = {
         nodes: store.searchNodes(keyword).value,
         tags: store.searchTags(keyword).value,
     };
-    const blob = new Blob([JSON.stringify(data)], { type: 'text/json' });
+    const blob = new Blob([JSON.stringify(data)], { type: 'text/json' }); // [/]
+    // [TriggerDownload]
     const url = URL.createObjectURL(blob);
     browser.downloads.download({
         url: url,
@@ -120,13 +119,17 @@ function handleClickDownload() {
         conflictAction: 'uniquify'
     }).then(() => {
         URL.revokeObjectURL(url);
-    });
+    }); // [/]
+}
+const router = useRouter();
+// [HandleHover]
+const hoverStar = ref(false);
+function handleMouseEnterUpload() {
+    handleMouseEnter('Import', hoverNode);
 }
 function handleMouseEnterDownload() {
     handleMouseEnter('Export', hoverNode);
 }
-const hoverStar = ref(false);
-const router = useRouter();
 function handleMouseEnterStar() {
     hoverStar.value = true;
     handleMouseEnter('Migrate from Favorites', hoverNode);
@@ -135,6 +138,9 @@ function handleMouseLeaveStar() {
     hoverStar.value = false;
     handleMouseLeaveHover();
 }
+function handleMouseLeaveHover() {
+    handleMouseLeave(hoverNode);
+} // [/]
 </script>
 
 <template>
