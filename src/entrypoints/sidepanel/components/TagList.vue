@@ -161,5 +161,6 @@ $row-height: common.$bar-height*0.8;
 .icon {
     @include common.icon($row-height);
     align-content: center;
+    color: black;
 }
 </style>
