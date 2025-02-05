@@ -58,8 +58,8 @@ export const useFavoritesMapStore: StoreBuilder<FavoritesMapStore> = defineStore
         }
         return collections;
     });
-    function selectTag(id: string): TagData {
-        return tagSet.value[id];
+    function selectTag(id: string): TagData | null {
+        return tagSet.value[id] ?? null;
     } // [/]
     // [GetTagsOfNode]
     const tagMap = computed(() => {

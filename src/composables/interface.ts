@@ -4,7 +4,7 @@ export type FavoritesMapStore = {
     searchNodes: (keyword: Ref<string>) => ComputedRef<NodeData[]>,
     selectNode: (id: string) => NodeData | null,
     searchTags: (keyword: Ref<string>) => ComputedRef<TagData[]>,
-    selectTag: (id: string) => TagData,
+    selectTag: (id: string) => TagData | null,
     filterNodes: (tags: Ref<string[]>) => ComputedRef<NodeData[]>,
     getTags: (node: string) => ComputedRef<TagData[]>,
 };
