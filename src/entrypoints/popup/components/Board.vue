@@ -4,7 +4,7 @@ import { createGraphConfig } from '@/composables/config';
 import EditHeader from '../components/EditHeader.vue';
 import LayoutMain from '@/components/LayoutMain.vue';
 import { Delete, Search } from '@element-plus/icons-vue';
-import { buildSearchStates, buildSelectGraph, buildTextState, deleteItem, upsertNode, buildSelectedNodesStates, upsertTag } from '@/composables/utils';
+import { buildSearchStates, buildSelectGraph, buildTextState, deleteItem, upsertNode, buildSelectedNodesStates, upsertTag, _ } from '@/composables/utils';
 import { useSelectedTagsStore } from '@/composables/store';
 import { Action, TagData } from '@/interface';
 
@@ -68,17 +68,18 @@ function handleDelete(event: MouseEvent, tagID: string) {
 <template>
     <el-container class="container">
         <el-header class="header">
-            <EditHeader title="Edit Favorites Map" class="bar" />
+            <EditHeader :title="_('popupBoardTitle')" class="bar" />
             <el-form label-width="auto" label-position="left">
-                <el-form-item label="Name">
+                <el-form-item :label="_('itemName')">
                     <el-input v-model="title" autofocus />
                 </el-form-item>
-                <el-form-item label="URL">
+                <el-form-item :label="_('itemURL')">
                     <el-input v-model="id" disabled />
                 </el-form-item>
-                <el-form-item label="Tags">
+                <el-form-item :label="_('itemTags')">
                     <el-select v-model="selectedTags" multiple :multiple-limit="5" filterable autocomplete="on"
-                        clearable allow-create default-first-option @change="createTagIfNotExist">
+                        :placeholder="_('selectPlaceHolder')" :no-data-text="_('selectNoDataText')" clearable
+                        allow-create default-first-option @change="createTagIfNotExist">
                         <template #label="{ label }">
                             <el-tooltip placement="bottom" :content="label">
                                 <el-row class="txt" justify="center">{{ label }}</el-row>
@@ -100,7 +101,7 @@ function handleDelete(event: MouseEvent, tagID: string) {
             </el-form>
             <el-row>
                 <el-col :span="8">
-                    <el-button @click="handleClickReset">Reset</el-button>
+                    <el-button @click="handleClickReset">{{ _('btnReset') }}</el-button>
                 </el-col>
                 <el-col :span="16">
                     <el-input v-model="keyword" :prefix-icon="Search" class="input">
@@ -127,8 +128,9 @@ function handleDelete(event: MouseEvent, tagID: string) {
         </LayoutMain>
         <el-footer class="footer">
             <el-row justify="end">
-                <el-button @click="() => upsertNode(title, id)" type="primary" :disabled="!canSave">Save</el-button>
-                <el-button @click="() => deleteItem(id, Action.DeleteNode)">Delete</el-button>
+                <el-button @click="() => upsertNode(title, id)" type="primary" :disabled="!canSave">{{ _('btnSave')
+                    }}</el-button>
+                <el-button @click="() => deleteItem(id, Action.DeleteNode)">{{ _('btnDelete') }}</el-button>
             </el-row>
         </el-footer>
     </el-container>

@@ -4,5 +4,47 @@
     },
     "extDescription": {
         "message": "A browser plugin providing better favorites management for human"
+    },
+    "popupBoxTitle": {
+        "message": "Add to Favorites Map"
+    },
+    "popupBoardTitle": {
+        "message": "Edit Favorites Map"
+    },
+    "itemName": {
+        "message": "Name"
+    },
+    "itemNeighbors": {
+        "message": "Neighbors"
+    },
+    "itemURL": {
+        "message": "URL"
+    },
+    "itemTags": {
+        "message": "Tags"
+    },
+    "viewAndSelectInMap": {
+        "message": "View & Select in Map"
+    },
+    "btnMore": {
+        "message": "More"
+    },
+    "btnSave": {
+        "message": "Save"
+    },
+    "btnDelete": {
+        "message": "Delete"
+    },
+    "btnOK": {
+        "message": "OK"
+    },
+    "btnReset": {
+        "message": "Reset"
+    },
+    "selectPlaceHolder": {
+        "message": "Select"
+    },
+    "selectNoDataText": {
+        "message": "No Data"
     }
 }

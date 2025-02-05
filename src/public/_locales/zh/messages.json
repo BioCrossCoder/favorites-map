@@ -4,5 +4,47 @@
     },
     "extDescription": {
         "message": "一个浏览器插件，为人类提供更好的收藏夹管理"
+    },
+    "popupBoxTitle": {
+        "message": "添加到收藏夹地图"
+    },
+    "popupBoardTitle": {
+        "message": "编辑收藏夹地图"
+    },
+    "itemName": {
+        "message": "名称"
+    },
+    "itemNeighbors": {
+        "message": "关联节点"
+    },
+    "itemURL": {
+        "message": "网址"
+    },
+    "itemTags": {
+        "message": "关联标签"
+    },
+    "viewAndSelectInMap": {
+        "message": "在图谱中查看并选择"
+    },
+    "btnMore": {
+        "message": "更 多"
+    },
+    "btnSave": {
+        "message": "保 存"
+    },
+    "btnDelete": {
+        "message": "删 除"
+    },
+    "btnOK": {
+        "message": "确 定"
+    },
+    "btnReset": {
+        "message": "重 置"
+    },
+    "selectPlaceHolder": {
+        "message": "选择"
+    },
+    "selectNoDataText": {
+        "message": "暂无数据"
     }
 }

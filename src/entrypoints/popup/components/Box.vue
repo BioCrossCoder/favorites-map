@@ -4,7 +4,7 @@ import { Search } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import EditHeader from "./EditHeader.vue";
 import LayoutMain from "@/components/LayoutMain.vue";
-import { buildTextState, deleteItem, upsertNode } from "@/composables/utils";
+import { buildTextState, deleteItem, upsertNode, _ } from "@/composables/utils";
 import { Action } from "@/interface";
 import { Tabs } from "wxt/browser";
 
@@ -52,16 +52,16 @@ function handleClickSearch() {
 <template>
     <el-container class="container">
         <el-header class="header">
-            <EditHeader title="Add to Favorites Map" />
+            <EditHeader :title="_('popupBoxTitle')" />
         </el-header>
         <LayoutMain>
             <el-form label-width="auto" label-position="left">
-                <el-form-item label="Name">
+                <el-form-item :label="_('itemName')">
                     <el-input v-model="title" autofocus />
                 </el-form-item>
-                <el-form-item label="Neighbors">
+                <el-form-item :label="_('itemNeighbors')">
                     <el-button type="primary" :icon="Search" class="search-btn" @click="handleClickSearch">
-                        View / Select in Map
+                        {{ _('viewAndSelectInMap') }}
                     </el-button>
                 </el-form-item>
             </el-form>
@@ -69,11 +69,13 @@ function handleClickSearch() {
         <el-footer class="footer">
             <el-row justify="space-between">
                 <el-col :span="7">
-                    <el-button @click="handleClickMore" type="primary">More</el-button>
+                    <el-button @click="handleClickMore" type="primary">{{ _('btnMore') }}</el-button>
                 </el-col>
                 <el-col :span="14">
-                    <el-button @click="() => upsertNode(title, id)" type="primary" :disabled="!canSave">Save</el-button>
-                    <el-button @click="() => deleteItem(id, Action.DeleteNode)">Delete</el-button>
+                    <el-button @click="() => upsertNode(title, id)" type="primary" :disabled="!canSave">{{
+                        _('btnSave') }}</el-button>
+                    <el-button @click="() => deleteItem(id, Action.DeleteNode)">{{ _('btnDelete')
+                        }}</el-button>
                 </el-col>
             </el-row>
         </el-footer>

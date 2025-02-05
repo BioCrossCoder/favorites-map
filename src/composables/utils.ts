@@ -238,3 +238,5 @@ export function sync(f: () => Promise<any>) {
     });
     wait(result);
 } // [/]
+
+export const _ = browser.i18n.getMessage;

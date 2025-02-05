@@ -3,7 +3,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { createGraphConfig } from '@/composables/config';
 import { Search } from '@element-plus/icons-vue';
 import LayoutMain from '@/components/LayoutMain.vue';
-import { buildSearchStates, buildSelectGraph, buildSelectedNodesStates } from '@/composables/utils';
+import { buildSearchStates, buildSelectGraph, buildSelectedNodesStates, _ } from '@/composables/utils';
 
 // [InitGraphData]
 const { keyword, nodeData: data } = buildSearchStates();
@@ -35,8 +35,8 @@ function handleClickOK() {
         <el-header class="header">
             <el-row>
                 <el-col :span="8">
-                    <el-button type="primary" @click="handleClickOK">OK</el-button>
-                    <el-button @click="handleClickReset">Reset</el-button>
+                    <el-button type="primary" @click="handleClickOK">{{ _('btnOK') }}</el-button>
+                    <el-button @click="handleClickReset">{{ _('btnReset') }}</el-button>
                 </el-col>
                 <el-col :span="8">
                     <el-input v-model="keyword" :prefix-icon="Search" class="input">
