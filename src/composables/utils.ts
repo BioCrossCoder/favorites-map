@@ -2,12 +2,13 @@ import { Action, DeleteAction, DeleteRequest, NodeData, TagData, UpdateResponse,
 import * as vNG from 'v-network-graph';
 import { useSelectedNodesStore, useFavoritesMapStore, useSelectedTagsStore } from "./store";
 import { FavoritesMapStore, SelectedNodesStore } from "./interface";
-import { storeToRefs } from "pinia";
 
 export function upsertNode(name: string, url: string): void {
+    // [GetStates]
     const store = useFavoritesMapStore();
     const selectedNodes = useSelectedNodesStore();
-    const selectedTags = useSelectedTagsStore().getState();
+    const selectedTags = useSelectedTagsStore().getState(); // [/]
+    // [BuildMessage]
     url = decodeURIComponent(url);
     const message: UpsertRequest<Action.UpsertNode> = {
         action: Action.UpsertNode,
@@ -16,8 +17,9 @@ export function upsertNode(name: string, url: string): void {
             url,
             relatedNodes: Array.from(selectedNodes.value.filter((value: string) => value !== url))
         }
-    }
+    } // [/]
     browser.runtime.sendMessage(message).then(() => {
+        // [CalculateTagsToUpdate]
         const oldTags = new Set(store.getTags(url).value.map((tag: TagData) => tag.id));
         const newTags = new Set(selectedTags.value);
         const tagsToUpdate = new Array<TagData>();
@@ -30,7 +32,8 @@ export function upsertNode(name: string, url: string): void {
             const data = store.selectTag(tag) as TagData;
             data.labeledNodes.push(url);
             tagsToUpdate.push(data);
-        });
+        }); // [/]
+        // [UpdateTags]
         const tasks = new Array<Promise<any>>();
         tagsToUpdate.forEach((data: TagData) => {
             const message: UpsertRequest<Action.UpsertTag> = {
@@ -39,7 +42,7 @@ export function upsertNode(name: string, url: string): void {
             }
             tasks.push(browser.runtime.sendMessage(message));
         });
-        Promise.all(tasks).then(window.close);
+        Promise.all(tasks).then(window.close); // [/]
     });
 }
 
@@ -50,6 +53,7 @@ export function deleteItem(id: string, action: DeleteAction, stay?: boolean): vo
     };
     const store = useFavoritesMapStore();
     const tasks = new Array<Promise<any>>();
+    // [RemoveLinkToNodeFromTags]
     if (action === Action.DeleteNode) {
         Array.from(store.getTags(id).value).forEach((data: TagData) => {
             data.labeledNodes = data.labeledNodes.filter((node: string) => node !== id);
@@ -59,14 +63,15 @@ export function deleteItem(id: string, action: DeleteAction, stay?: boolean): vo
             }
             tasks.push(browser.runtime.sendMessage(message));
         })
-    }
+    } // [/]
+    // [DeleteNodeOrTag]
     Promise.all(tasks).then(() => {
         browser.runtime.sendMessage(message).then(() => {
             if (!stay) {
                 window.close();
             }
         });
-    });
+    }); // [/]
 }
 
 export async function upsertTag(id: string, name: string, labeledNodes?: string[]): Promise<boolean> {
@@ -82,13 +87,14 @@ export async function upsertTag(id: string, name: string, labeledNodes?: string[
     return (await browser.runtime.sendMessage(message) as UpdateResponse).success;
 }
 
+// [SetHoverCallbacks]
 export function handleMouseEnter(message: string, state: Ref<string>): void {
     state.value = message;
 }
 
 export function handleMouseLeave(state: Ref<string>): void {
     state.value = '';
-}
+} // [/]
 
 export function buildGraphNodes(data: Ref<NodeData[]>, activator?: (node: string) => boolean): Ref<Record<string, vNG.Node>> {
     return computed<Record<string, vNG.Node>>(() => {
@@ -216,6 +222,7 @@ export function search<T extends { name: string }>(data: Record<string, T>, keyw
     return new Set(textMatch(Object.values(data), keyword));
 }
 
+// [Synchronize]
 function wait(result: { finish: boolean }) {
     setTimeout(() => {
         if (!result.finish) {
@@ -230,4 +237,4 @@ export function sync(f: () => Promise<any>) {
         result.finish = true;
     });
     wait(result);
-}
+} // [/]

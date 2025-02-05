@@ -5,15 +5,19 @@ import { Search } from '@element-plus/icons-vue';
 import LayoutMain from '@/components/LayoutMain.vue';
 import { buildSearchStates, buildSelectGraph, buildSelectedNodesStates } from '@/composables/utils';
 
+// [InitGraphData]
 const { keyword, nodeData: data } = buildSearchStates();
-const configs = computed(() => createGraphConfig(keyword.value));
+const configs = computed(() => createGraphConfig(keyword.value)); // [/]
+// [InitSelectedNodeState]
 const { selectedNodes, selectedNodesOld, handleClickReset } = buildSelectedNodesStates();
 onMounted(() => {
     selectedNodesOld.value = Array.from(selectedNodes.value);
-});
+}); // [/]
+// [BuildGraph]
 const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(data);
 const totalCount = computed<number>(() => data.value.length);
-const selectedCount = computed<number>(() => selectedNodes.value.length);
+const selectedCount = computed<number>(() => selectedNodes.value.length); // [/]
+// [RouteJump]
 const router = useRouter();
 const route = useRoute();
 function handleClickOK() {
@@ -22,8 +26,8 @@ function handleClickOK() {
         query: {
             name: route.query.name,
         },
-    })
-}
+    });
+} // [/]
 </script>
 
 <template>
