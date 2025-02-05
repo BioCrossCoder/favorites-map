@@ -22,12 +22,12 @@ export function upsertNode(name: string, url: string): void {
         const newTags = new Set(selectedTags.value);
         const tagsToUpdate = new Array<TagData>();
         Array.from(oldTags.difference(newTags)).forEach((tag: string) => {
-            const data: TagData = store.selectTag(tag);
+            const data = store.selectTag(tag) as TagData;
             data.labeledNodes = data.labeledNodes.filter((node: string) => node !== url);
             tagsToUpdate.push(data);
         });
         Array.from(newTags.difference(oldTags)).forEach((tag: string) => {
-            const data: TagData = store.selectTag(tag);
+            const data = store.selectTag(tag) as TagData;
             data.labeledNodes.push(url);
             tagsToUpdate.push(data);
         });
@@ -76,7 +76,7 @@ export async function upsertTag(id: string, name: string, labeledNodes?: string[
         data: {
             id,
             name,
-            labeledNodes: labeledNodes ?? store.selectTag(id).labeledNodes,
+            labeledNodes: labeledNodes ?? store.selectTag(id)?.labeledNodes ?? [],
         }
     }
     return (await browser.runtime.sendMessage(message) as UpdateResponse).success;

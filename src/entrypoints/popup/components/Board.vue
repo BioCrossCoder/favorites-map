@@ -4,7 +4,8 @@ import { createGraphConfig } from '@/composables/config';
 import EditHeader from '../components/EditHeader.vue';
 import LayoutMain from '@/components/LayoutMain.vue';
 import { Search } from '@element-plus/icons-vue';
-import { buildSearchStates, buildSelectGraph, buildTextState, deleteItem, upsertNode, buildSelectedNodesStates } from '@/composables/utils';
+import { buildSearchStates, buildSelectGraph, buildTextState, deleteItem, upsertNode, buildSelectedNodesStates, upsertTag } from '@/composables/utils';
+import { useSelectedTagsStore } from '@/composables/store';
 import { Action, TagData } from '@/interface';
 
 const route = useRoute();
@@ -37,6 +38,20 @@ onMounted(() => {
 const { hoverNode, nodes, edges, eventHandlers } = buildSelectGraph(nodeData);
 const nodeTotalCount = computed<number>(() => nodeData.value.length);
 const selectedNodeCount = computed<number>(() => selectedNodes.value.length);
+function createTagIfNotExist() {
+    if (selectedTags.value.length > 5) {
+        return;
+    }
+    for (const tag of selectedTags.value) {
+        if (!store.selectTag(tag)) {
+            const tagID = crypto.randomUUID();
+            upsertTag(tagID, tag, []).then(() => {
+                selectedTags.value[selectedTags.value.length - 1] = tagID;
+            });
+            break;
+        }
+    }
+}
 </script>
 
 <template>
@@ -52,7 +67,7 @@ const selectedNodeCount = computed<number>(() => selectedNodes.value.length);
                 </el-form-item>
                 <el-form-item label="Tags">
                     <el-select v-model="selectedTags" multiple :multiple-limit="5" filterable autocomplete="on"
-                        clearable>
+                        clearable allow-create default-first-option @change="createTagIfNotExist">
                         <template #label="{ label }">
                             <el-tooltip placement="bottom" :content="label">
                                 <el-row class="txt" justify="center">{{ label }}</el-row>
