@@ -26,9 +26,9 @@ function keepAlive(): void {
 
 export default defineBackground(() => {
     keepAlive();
-    browser.runtime.onMessage.addListener((message: OperationMessage, _sender, sendResponse: (response: SearchResponse<NodeData | TagData> | UpdateResponse) => void) => {
+    browser.runtime.onMessage.addListener((message: unknown, _sender, sendResponse: (response: SearchResponse<NodeData | TagData> | UpdateResponse) => void) => {
         if (!isOperationMessage(message)) {
-            return;
+            return undefined;
         }
         switch (message.action) {
             case Action.UpsertNode:
