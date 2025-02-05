@@ -51,10 +51,10 @@ const graph = ref<vNG.Instance>();
 onMounted(() => {
     const observer = watch(graph, () => {
         if (graph.value) {
-            watch(view, graph.value.panToCenter);
+            watch([view, selectedTags], graph.value.panToCenter);
             observer.stop();
         }
-    })
+    });
 }); // [/]
 function handleClickVisit() {
     if (!position.value) {

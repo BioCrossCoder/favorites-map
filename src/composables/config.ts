@@ -4,7 +4,8 @@ import { ForceLayout, ForceEdgeDatum, ForceNodeDatum } from "v-network-graph/lib
 
 enum ForceType {
     Edge = 'edge',
-    Collide = 'collide'
+    Collide = 'collide',
+    Center = 'center'
 }
 
 function createSimulation(d3: typeof d3Force, nodes: ForceNodeDatum[], edges: ForceEdgeDatum[], center: string): d3Force.Simulation<ForceNodeDatum, undefined> {
@@ -20,11 +21,13 @@ function createSimulation(d3: typeof d3Force, nodes: ForceNodeDatum[], edges: Fo
     } // [/]
     // [BuildLayout]
     const forceLink = d3.forceLink<ForceNodeDatum, ForceEdgeDatum>(edges).id((d: ForceNodeDatum) => d.id);
-    const forceValue = 30;
+    const largeForce = 30;
+    const smallForce = 0.2;
     const simulation = d3
         .forceSimulation(nodes)
-        .force(ForceType.Edge, forceLink.distance(forceValue))
-        .force(ForceType.Collide, d3.forceCollide(forceValue).strength(0.2))
+        .force(ForceType.Edge, forceLink.distance(largeForce).strength(smallForce))
+        .force(ForceType.Collide, d3.forceCollide(largeForce).strength(smallForce))
+        .force(ForceType.Center, d3.forceCenter(largeForce, largeForce))
         .alphaMin(0.001); // [/]
     // [FixLayout]
     const ticker = setInterval(() => {
@@ -54,8 +57,12 @@ export function createGraphConfig(center: string) {
             }
         },
         edge: {
+            normal: {
+                color: '#909399',
+            },
             hover: {
-                width: 2
+                width: 2,
+                color: '#909399'
             }
         },
         view: {
