@@ -2,7 +2,7 @@
 import LayoutMain from '@/components/LayoutMain.vue';
 import { createGraphConfig } from '@/composables/config';
 import { useGraphPositionStore, useFavoritesMapStore, useSelectedTagsStore } from '@/composables/store';
-import { buildGraphEdges, buildGraphNodes, handleMouseEnter, handleMouseLeave, _ } from '@/composables/utils';
+import { buildGraphEdges, buildGraphNodes, handleMouseEnter, handleMouseLeave, sendMessage, _ } from '@/composables/utils';
 import { Action, FavoritesMapData, ImportRequest, TFavoritesMapData } from '@/interface';
 import { Download, Upload, Star, StarFilled } from '@element-plus/icons-vue';
 import { genFileId, UploadFile, UploadInstance, UploadRawFile } from 'element-plus';
@@ -85,7 +85,7 @@ function handleUploadSuccess(_response: any, uploadFile: UploadFile) {
             action: Action.Import,
             data: JSON.parse(content) as FavoritesMapData
         }
-        browser.runtime.sendMessage(message);
+        sendMessage(message);
     }); // [/]
 }
 const uploadFail = ref(false);

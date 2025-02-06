@@ -1,16 +1,15 @@
 import { NodeData, graphStorageKey, Action, SearchResponse, SearchRequest, TagData, indexStorageKey } from '@/interface';
 import { defineStore } from 'pinia';
 import { FavoritesMapStore, GraphPositionStore, SelectedNodesStore, SelectedTagsStore, StoreBuilder } from './interface';
-import { textMatch } from './utils';
+import { textMatch, sendMessage } from './utils';
 
 function loadNodes(keyword: string, receiver: Ref<NodeData[]>): void {
     const message: SearchRequest = {
         action: Action.SearchNodes,
         data: keyword,
     };
-    browser.runtime.sendMessage(message).then((value) => {
-        const response = value as SearchResponse<NodeData>;
-        receiver.value = response.result;
+    sendMessage<SearchRequest, SearchResponse<NodeData>>(message).then(value => {
+        receiver.value = value.result;
     });
 }
 
@@ -19,9 +18,8 @@ function loadTags(keyword: string, receiver: Ref<TagData[]>): void {
         action: Action.SearchTags,
         data: keyword,
     }
-    browser.runtime.sendMessage(message).then((value) => {
-        const response = value as SearchResponse<TagData>;
-        receiver.value = response.result;
+    sendMessage<SearchRequest, SearchResponse<TagData>>(message).then(value => {
+        receiver.value = value.result;
     });
 }
 

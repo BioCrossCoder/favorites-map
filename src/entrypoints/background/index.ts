@@ -1,6 +1,7 @@
-import { Action, isOperationMessage, NodeData, OperationMessage, SearchResponse, TagData, UpdateResponse, UpsertRequest } from "@/interface";
+import { Action, isOperationMessage, NodeData, SearchResponse, TagData, UpdateResponse, UpsertRequest } from "@/interface";
 import { Graph, Node } from "./graph";
 import { Index, Tag } from "./guide";
+import { sendMessage } from "@/composables/utils";
 
 function buildSearchNodesResponse(data: Array<Node | null>): NodeData[] {
     return data.filter(node => node !== null).map((node: Node) => ({
@@ -20,7 +21,7 @@ function buildSearchTagsResponse(data: Array<Tag | null>): TagData[] {
 
 function keepAlive(): void {
     setInterval(() => {
-        browser.runtime.sendMessage('').catch(() => { });
+        sendMessage('').catch(() => { });
     }, 1000 * 10);
 }
 

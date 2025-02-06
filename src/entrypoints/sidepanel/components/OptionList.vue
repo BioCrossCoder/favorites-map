@@ -4,7 +4,7 @@ import { useFavoritesMapStore } from '@/composables/store';
 import { Action, ImportRequest, NodeData, TagData } from '@/interface';
 import { Search, Switch } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
-import { textMatch, _ } from '@/composables/utils';
+import { textMatch, sendMessage, _ } from '@/composables/utils';
 
 // [InitStates]
 const keyword = ref('');
@@ -98,7 +98,7 @@ function handleClickOK() {
             tags,
         },
     }
-    browser.runtime.sendMessage(message).then(router.back);
+    sendMessage(message).then(router.back);
 }
 const router = useRouter();
 const showURL = ref(false);

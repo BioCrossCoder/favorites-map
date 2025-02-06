@@ -18,7 +18,7 @@ export function upsertNode(name: string, url: string): void {
             relatedNodes: Array.from(selectedNodes.value.filter((value: string) => value !== url))
         }
     } // [/]
-    browser.runtime.sendMessage(message).then(() => {
+    sendMessage(message).then(() => {
         // [CalculateTagsToUpdate]
         const oldTags = new Set(store.getTags(url).value.map((tag: TagData) => tag.id));
         const newTags = new Set(selectedTags.value);
@@ -40,7 +40,7 @@ export function upsertNode(name: string, url: string): void {
                 action: Action.UpsertTag,
                 data,
             }
-            tasks.push(browser.runtime.sendMessage(message));
+            tasks.push(sendMessage(message));
         });
         Promise.all(tasks).then(window.close); // [/]
     });
@@ -61,12 +61,12 @@ export function deleteItem(id: string, action: DeleteAction, stay?: boolean): vo
                 action: Action.UpsertTag,
                 data,
             }
-            tasks.push(browser.runtime.sendMessage(message));
+            tasks.push(sendMessage(message));
         })
     } // [/]
     // [DeleteNodeOrTag]
     Promise.all(tasks).then(() => {
-        browser.runtime.sendMessage(message).then(() => {
+        sendMessage(message).then(() => {
             if (!stay) {
                 window.close();
             }
@@ -84,7 +84,7 @@ export async function upsertTag(id: string, name: string, labeledNodes?: string[
             labeledNodes: labeledNodes ?? store.selectTag(id)?.labeledNodes ?? [],
         }
     }
-    return (await browser.runtime.sendMessage(message) as UpdateResponse).success;
+    return (await sendMessage<UpsertRequest<Action.UpsertTag>, UpdateResponse>(message)).success;
 }
 
 // [SetHoverCallbacks]
@@ -240,3 +240,12 @@ export function sync(f: () => Promise<any>) {
 } // [/]
 
 export const _ = browser.i18n.getMessage;
+
+// [SendMessageWithDeepCopy] keep compatible with firefox
+export function deepCopy<T>(obj: T): T {
+    return JSON.parse(JSON.stringify(obj)) as T;
+}
+
+export async function sendMessage<T, R>(message: T) {
+    return await browser.runtime.sendMessage(deepCopy(message)) as R;
+} // [/]
