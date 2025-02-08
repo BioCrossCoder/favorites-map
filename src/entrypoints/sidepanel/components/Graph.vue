@@ -16,6 +16,7 @@ const selectedTags = useSelectedTagsStore().getState();
 const nodeData = store.filterNodes(selectedTags);
 const position = useGraphPositionStore();
 const configs = computed(() => {
+    selectedTags.value // trigger re-render when selected tags changes
     nodeData.value; // trigger re-render when data changes
     return createGraphConfig(position.value);
 });
